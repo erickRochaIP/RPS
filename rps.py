@@ -5,7 +5,7 @@ from simplex import Simplex, PontoAvaliacao
 
 # Recebe uma funcao, ponto inicial, quantidade de avaliacoes, limites de variaveis, parametros e tolerancia
 # Retorna o ponto cujo valor da funcao e o menor encontrado
-def nelder_mead(f, x0, avals_usr, lu, params = None, eps_x = 0.0):
+def rps(f, x0, avals_usr, lu, params = None, eps_x = 0.0):
     if params is None:
         params = {}
     coef_reflexao = params["ir"] if "ir" in params else 2
