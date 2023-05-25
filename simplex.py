@@ -1,6 +1,7 @@
 import math
 
 import numpy as np
+from scipy.stats import ttest_ind
 
 class PontoAvaliacao:
     
@@ -20,7 +21,6 @@ class PontoAvaliacao:
     
     def lista_f_x(f, x, n = 5):
         fs = [PontoAvaliacao.avaliar_funcao(f, x) for _ in range(n)]
-        print(fs)
         return fs
 
     def obter_inviabilidade_ponto(x, lu):
@@ -49,7 +49,9 @@ class PontoAvaliacao:
         elif self.inviabilidade != 0:
             return False
         else:
-            return np.mean(self.f_x) < np.mean(other.f_x)
+            r = ttest_ind(self.f_x, other.f_x, alternative="less")
+            alpha = 0.05
+            return r.pvalue < alpha
         
     def __eq__(self, other):
         return self.inviabilidade == other.inviabilidade and np.mean(self.f_x) == np.mean(other.f_x)

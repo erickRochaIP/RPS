@@ -12,12 +12,15 @@ def string_point(x):
     s += f"{x[-1]:.3f})"
     return s
 
-def test_function(f, x0, lu):
-    if f.__name__ is not None:
+def test_function(f, x0, lu, f_name=None):
+    if f_name is not None:
+        print(f_name)
+        print()
+    elif f.__name__ is not None:
         print(f.__name__)
         print()
     
-    p_rps = rps(f, x0, 500,
+    p_rps = rps(f, x0, 1000,
                  lu,
                  params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
                  eps_x=1e-6).x
@@ -37,19 +40,9 @@ functions = [
     bf.levy_function
     ]
 
-x0 = [5]
+x0 = [-3]
 lu = [(-10, 10)]
 
-def f(x):
-    x0 = x[0]
-    return x0**2
-
-ruido = bf.adiciona_ruido(f)
-
-p1 = PontoAvaliacao([0], ruido, lu)
-p2 = PontoAvaliacao([1], ruido, lu)
-
-print(np.mean(p1.f_x))
-print(np.mean(p2.f_x))
-
-print(p1 < p2)
+for function in functions:
+    ruido = bf.adiciona_ruido(function)
+    test_function(ruido, x0*10, lu*10, function.__name__)
