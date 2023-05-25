@@ -1,7 +1,9 @@
+import numpy as np
 from scipy import optimize
 
 import benchmark_functions as bf
 from rps import rps
+from simplex import PontoAvaliacao
 
 def string_point(x):
     s = "("
@@ -38,6 +40,16 @@ functions = [
 x0 = [5]
 lu = [(-10, 10)]
 
-for function in functions:
-    test_function(function, x0 * 2, lu * 2)
-    test_function(function, x0 * 10, lu * 10)
+def f(x):
+    x0 = x[0]
+    return x0**2
+
+ruido = bf.adiciona_ruido(f)
+
+p1 = PontoAvaliacao([0], ruido, lu)
+p2 = PontoAvaliacao([1], ruido, lu)
+
+print(np.mean(p1.f_x))
+print(np.mean(p2.f_x))
+
+print(p1 < p2)

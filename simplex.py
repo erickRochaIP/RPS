@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+
 class PontoAvaliacao:
     
     avals = 0
@@ -7,7 +9,7 @@ class PontoAvaliacao:
     def __init__(self, x, f, lu):
         self.x = x
         self.inviabilidade = PontoAvaliacao.obter_inviabilidade_ponto(x, lu)
-        self.f_x = PontoAvaliacao.avaliar_funcao(f, x) if self.inviabilidade == 0 else math.inf
+        self.f_x = PontoAvaliacao.lista_f_x(f, x) if self.inviabilidade == 0 else math.inf
       
     def reset_avals():
         PontoAvaliacao.avals = 0
@@ -15,6 +17,11 @@ class PontoAvaliacao:
     def avaliar_funcao(f, x):
         PontoAvaliacao.avals += 1
         return f(x)
+    
+    def lista_f_x(f, x, n = 5):
+        fs = [PontoAvaliacao.avaliar_funcao(f, x) for _ in range(n)]
+        print(fs)
+        return fs
 
     def obter_inviabilidade_ponto(x, lu):
         return sum(PontoAvaliacao.obter_inviabilidade_var(xi, lui) for xi, lui in zip(x, lu))
@@ -42,34 +49,21 @@ class PontoAvaliacao:
         elif self.inviabilidade != 0:
             return False
         else:
-            return self.f_x < other.f_x
+            return np.mean(self.f_x) < np.mean(other.f_x)
+        
+    def __eq__(self, other):
+        return self.inviabilidade == other.inviabilidade and np.mean(self.f_x) == np.mean(other.f_x)
         
     def __le__(self, other):
-        if self.inviabilidade != other.inviabilidade:
-            return self.inviabilidade < other.inviabilidade
-        elif self.inviabilidade != 0:
-            return True
-        else:
-            return self.f_x <= other.f_x
+        return self == other or self < other
         
     def __gt__(self, other):
-        if self.inviabilidade != other.inviabilidade:
-            return self.inviabilidade > other.inviabilidade
-        elif self.inviabilidade != 0:
-            return False
-        else:
-            return self.f_x > other.f_x
+        return not (self <= other)
         
     def __ge__(self, other):
-        if self.inviabilidade != other.inviabilidade:
-            return self.inviabilidade > other.inviabilidade
-        elif self.inviabilidade != 0:
-            return True
-        else:
-            return self.f_x >= other.f_x
+        return not (self<other)
     
-    def __eq__(self, other):
-        return self.inviabilidade == other.inviabilidade and self.f_x == other.f_x
+    
         
 
 
