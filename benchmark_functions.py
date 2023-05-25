@@ -1,5 +1,7 @@
 import math
 
+import numpy as np
+
 # Zakharov Function
 def zakharov_function(x):
 	D = len(x)
@@ -51,3 +53,6 @@ def levy_function(x):
         somatorio += ((wi(x[D]) - 1) ** 2) * (1 + math.sin(2 * math.pi * wi(x[D])) ** 2)
     somatorio += math.sin(math.pi * wi(x[0])) ** 2
     return somatorio
+
+def adiciona_ruido(f, media = 0, desvio = 1):
+    return lambda x: f(x) + np.random.normal(media, desvio)
