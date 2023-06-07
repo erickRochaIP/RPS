@@ -1,2 +1,2 @@
-# NelderMead
-Implementação em Python do algoritmo de otimização Nelder Mead
+# RPS
+Implementação em Python do algoritmo de otimização RPS
