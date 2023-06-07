@@ -5,6 +5,9 @@ import benchmark_functions as bf
 from rps import rps
 from simplex import PontoAvaliacao
 
+def media(f, x):
+    return np.mean([f(x) for _ in range(100)])
+
 def string_point(x):
     s = "("
     for xi in x[:-1]:
@@ -20,15 +23,15 @@ def test_function(f, x0, lu, f_name=None):
         print(f.__name__)
         print()
     
-    p_rps = rps(f, x0, 1000,
+    p_rps = rps(f, x0, 400,
                  lu,
                  params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
                  eps_x=1e-6).x
     p_sp = optimize.minimize(f, x0, method="Nelder-Mead",
                       bounds=lu).x
     
-    print(f"RPS: x*={string_point(p_rps)}; f(x*)={f(p_rps):.3f}")
-    print(f"Scipy NelderMead: x*={string_point(p_sp)}; f(x*)={f(p_sp):.3f}")
+    print(f"RPS: x*={string_point(p_rps)}; f(x*)={media(f, p_rps):.3f}")
+    print(f"Scipy NelderMead: x*={string_point(p_sp)}; f(x*)={media(f, p_sp):.3f}")
     print("==============")
 
 
@@ -45,4 +48,4 @@ lu = [(-10, 10)]
 
 for function in functions:
     ruido = bf.adiciona_ruido(function)
-    test_function(ruido, x0*10, lu*10, function.__name__)
+    test_function(ruido, x0*3, lu*3, function.__name__)
