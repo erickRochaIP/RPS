@@ -22,6 +22,7 @@ def test_function(f, x0, lu, f_name=None):
     elif f.__name__ is not None:
         print(f.__name__)
         print()
+        
     
     p_rps = rps(f, x0, 400,
                  lu,
@@ -33,6 +34,8 @@ def test_function(f, x0, lu, f_name=None):
     print(f"RPS: x*={string_point(p_rps)}; f(x*)={media(f, p_rps):.3f}")
     print(f"Scipy NelderMead: x*={string_point(p_sp)}; f(x*)={media(f, p_sp):.3f}")
     print("==============")
+    
+    # TODO: retornar tupla com as melhores solucoes
 
 
 functions = [
@@ -46,6 +49,12 @@ functions = [
 x0 = [-3]
 lu = [(-10, 10)]
 
+# TODO: criar matriz fxk (np.array)
 for function in functions:
     ruido = bf.adiciona_ruido(function)
+    # TODO: chamar essa funcao 10 vezes
     test_function(ruido, x0*3, lu*3, function.__name__)
+    # TODO: para cada metodo, retornar a media das 10 solucoes
+
+# TODO: gerar boxplot
+# TODO: aplicar testes Friedman e Nemenyi
