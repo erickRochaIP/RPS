@@ -30,8 +30,7 @@ def expanded_schaffer_function(x):
 	for i in range(D-1):
 		somatorio += g(x[i], x[i+1])
 	somatorio += g(x[D-1], x[0])
-	return somatorio
-		
+	return somatorio	
 
 # Rastrigin's Function
 def rastrigin_function(x):
