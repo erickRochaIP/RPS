@@ -55,7 +55,18 @@ functions = [
     bf.rosenbrock_function,
     bf.expanded_schaffer_function,
     bf.rastrigin_function,
-    bf.levy_function
+    bf.levy_function,
+    bf.bent_cigar_function,
+    bf.hgbat_function,
+    bf.high_conditioned_elliptic_function,
+    bf.katsuura_function,
+    bf.happycat_function,
+    bf.expanded_rosenbrocks_plus_griewangk_function,
+    bf.modified_schwefels_function,
+    bf.ackleys_function,
+    bf.discus_function,
+    bf.griewanks_function,
+    bf.schaffer_f7_function,
     ]
 
 lu = [(-10, 10)]
