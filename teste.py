@@ -100,7 +100,7 @@ for function in functions:
         nmMedia += function(nmP)
     rps1Medias.append(rps1Media / qtd)
     rps2Medias.append(rps2Media / qtd)
-    rps3Medias.append(rps1Media / qtd)
+    rps3Medias.append(rps3Media / qtd)
     nmMedias.append(nmMedia / qtd)
 
 data = [
