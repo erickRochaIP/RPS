@@ -7,8 +7,9 @@ from scipy import optimize
 import scipy.stats as ss
 
 import benchmark_functions as bf
-from rps import rps
-from simplex import PontoAvaliacao
+import rps1
+import rps2
+import rps
 
 def media(f, x):
     return np.mean([f(x) for _ in range(100)])
@@ -36,14 +37,22 @@ def test_function(f, x0, lu, max_avals, f_name=None):
     
     print(x0)
     
-    p_rps = rps(f, x0, max_avals,
+    p_rps1 = rps1.rps(f, x0, max_avals,
+                 lu,
+                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
+                 eps_x=1e-6).x
+    p_rps2 = rps2.rps(f, x0, max_avals,
+                 lu,
+                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
+                 eps_x=1e-6).x
+    p_rps3 = rps.rps(f, x0, max_avals,
                  lu,
                  params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
                  eps_x=1e-6).x
     p_sp = optimize.minimize(f, x0, method="Nelder-Mead",
                       bounds=lu).x
     
-    return (p_rps, p_sp)
+    return (p_rps1, p_rps2, p_rps3, p_sp)
     
     print(f"RPS: x*={string_point(p_rps)}; f(x*)={media(f, p_rps):.3f}")
     print(f"Scipy NelderMead: x*={string_point(p_sp)}; f(x*)={media(f, p_sp):.3f}")
@@ -56,13 +65,13 @@ functions = [
     bf.expanded_schaffer_function,
     bf.rastrigin_function,
     bf.levy_function,
-    bf.bent_cigar_function,
+    #bf.bent_cigar_function,
     bf.hgbat_function,
-    bf.high_conditioned_elliptic_function,
+    #bf.high_conditioned_elliptic_function,
     bf.katsuura_function,
     bf.happycat_function,
     bf.expanded_rosenbrocks_plus_griewangk_function,
-    bf.modified_schwefels_function,
+    # bf.modified_schwefels_function,
     bf.ackleys_function,
     bf.discus_function,
     bf.griewanks_function,
@@ -71,33 +80,38 @@ functions = [
 
 lu = [(-10, 10)]
 
-rpsMedias = []
+rps1Medias = []
+rps2Medias = []
+rps3Medias = []
 nmMedias = []
 
 for function in functions:
     ruido = bf.adiciona_ruido(function)
-    qtd = 3
+    qtd = 1
     dim = 3
     max_avals = 400
-    rpsMedia, nmMedia = 0, 0
+    rps1Media, rps2Media, rps3Media, nmMedia = 0, 0, 0, 0
     for i in range(qtd):
         limites_lu = lu*dim
-        rpsP, nmP = test_function(ruido, criar_ponto(limites_lu), limites_lu, max_avals, function.__name__)
-        rpsMedia += function(rpsP)
+        rps1P, rps2P, rps3P, nmP = test_function(ruido, criar_ponto(limites_lu), limites_lu, max_avals, function.__name__)
+        rps1Media += function(rps1P)
+        rps2Media += function(rps2P)
+        rps3Media += function(rps3P)
         nmMedia += function(nmP)
-    rpsMedias.append(rpsMedia / qtd)
+    rps1Medias.append(rps1Media / qtd)
+    rps2Medias.append(rps2Media / qtd)
+    rps3Medias.append(rps1Media / qtd)
     nmMedias.append(nmMedia / qtd)
 
 data = [
-    rpsMedias,
+    rps1Medias,
+    rps2Medias,
+    rps3Medias,
     nmMedias
 ]
 
-print("RPS")
-print(rpsMedias)
-print()
-print("Nelder Mead")
-print(nmMedias)
+for m in data:
+    print(m)
 
 fig = plt.figure(figsize =(10, 7))
  
