@@ -134,9 +134,11 @@ for m in data:
     print(m)
 
 fig = plt.figure(figsize =(10, 7))
- 
+
 # Creating plot
 plt.boxplot(data)
+metodos = ['RPSavg', 'RPStt', 'RPSlin', 'RPSp3', 'RPSr3', 'NMbas']
+plt.xticks([i for i in range(1, len(metodos)+1)], metodos)
  
 # show plot
 plt.savefig("resultado.pdf")
