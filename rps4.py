@@ -1,6 +1,6 @@
 import numpy as np
 
-from simplex import Simplex, PontoAvaliacao
+from simplex4 import Simplex, PontoAvaliacao
 
 
 # Recebe uma funcao, ponto inicial, quantidade maxima de avaliacoes, limites de variaveis, parametros
