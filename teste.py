@@ -1,10 +1,7 @@
 import random
 
-import matplotlib.pyplot as plt
 import numpy as np
-import scikit_posthocs as sp
 from scipy import optimize
-import scipy.stats as ss
 
 import benchmark_functions as bf
 import rps1
@@ -12,6 +9,8 @@ import rps2
 import rps3
 import rps4
 import rps5
+
+import analise_resultado
 
 
 def media(f, x):
@@ -89,7 +88,11 @@ functions = [
     bf.schaffer_f7_function,
     ]
 
-lu = [(-10, 10)]
+#opts = {"lu": [(-5, 5)], "qtd": 30, "dim": 10, "max_avals": 1000}
+opts = {"lu": [(-5, 5)], "qtd": 3, "dim": 3, "max_avals": 300}
+
+
+lu = opts["lu"]
 
 rps1Medias = []
 rps2Medias = []
@@ -100,9 +103,9 @@ nmMedias = []
 
 for function in functions:
     ruido = bf.adiciona_ruido(function)
-    qtd = 1
-    dim = 3
-    max_avals = 400
+    qtd = opts["qtd"]
+    dim = opts["dim"]
+    max_avals = opts["max_avals"]
     rps1Media, rps2Media, rps3Media, rps4Media, rps5Media, nmMedia = 0, 0, 0, 0, 0, 0
     for i in range(qtd):
         limites_lu = lu*dim
@@ -130,25 +133,8 @@ data = [
     nmMedias
 ]
 
-for m in data:
-    print(m)
-
-fig = plt.figure(figsize =(10, 7))
-
-# Creating plot
-plt.boxplot(data)
-metodos = ['RPSavg', 'RPStt', 'RPSlin', 'RPSp3', 'RPSr3', 'NMbas']
-plt.xticks([i for i in range(1, len(metodos)+1)], metodos)
- 
-# show plot
-plt.savefig("resultado.pdf")
-plt.savefig("resultado.png")
-
 data = np.array(data)
 
-np.save("data.npy", data)
+analise_resultado.analisar_resultado(data)
 
-print(ss.friedmanchisquare(*data.T))
-nf = sp.posthoc_nemenyi_friedman(data.T)
-print(nf)
-np.save("nemenyi_friedman.npy", np.array(nf))
+np.save("data.npy", data)
