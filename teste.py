@@ -75,13 +75,13 @@ functions = [
     bf.expanded_schaffer_function,
     bf.rastrigin_function,
     bf.levy_function,
-    #bf.bent_cigar_function,
+    bf.bent_cigar_function,
     bf.hgbat_function,
-    #bf.high_conditioned_elliptic_function,
+    bf.high_conditioned_elliptic_function,
     bf.katsuura_function,
     bf.happycat_function,
     bf.expanded_rosenbrocks_plus_griewangk_function,
-    # bf.modified_schwefels_function,
+    #bf.modified_schwefels_function,
     bf.ackleys_function,
     bf.discus_function,
     bf.griewanks_function,
@@ -89,7 +89,7 @@ functions = [
     ]
 
 #opts = {"lu": [(-5, 5)], "qtd": 30, "dim": 10, "max_avals": 1000}
-opts = {"lu": [(-5, 5)], "qtd": 3, "dim": 3, "max_avals": 300}
+opts = {"lu": [(-5, 5)], "qtd": 10, "dim": 5, "max_avals": 500}
 
 
 lu = opts["lu"]
