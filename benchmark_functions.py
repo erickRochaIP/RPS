@@ -127,7 +127,7 @@ def ackleys_function(x):
     for i in range(len(x)):
         somatorioquadrado += x[i] ** 2
         somatoriocos += math.cos(2 * math.pi * x[i])
-    return -20 * math.exp(-0.2*math.sqrt(somatorioquadrado/D)) - math.exp(somatoriocos / D) + 10 + math.e
+    return -20 * math.exp(-0.2*math.sqrt(somatorioquadrado/D)) - math.exp(somatoriocos / D) + 20 + math.e
 
 # Discus Function
 def discus_function(x):
