@@ -89,8 +89,8 @@ functions = [
     ]
 
 #opts = {"lu": [(-5, 5)], "qtd": 30, "dim": 10, "max_avals": 1000}
-#opts = {"lu": [(-5, 5)], "qtd": 10, "dim": 5, "max_avals": 500}
-opts = {"lu": [(-5, 5)], "qtd": 2, "dim": 3, "max_avals": 300}
+opts = {"lu": [(-5, 5)], "qtd": 10, "dim": 5, "max_avals": 500}
+#opts = {"lu": [(-5, 5)], "qtd": 2, "dim": 3, "max_avals": 300}
 
 
 lu = opts["lu"]
