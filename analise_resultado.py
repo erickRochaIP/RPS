@@ -28,7 +28,7 @@ def analisar_resultado(data, path):
     np.save(path + "nemenyi_friedman.npy", np.array(nf))
 
 def analisar_arquivo(path='', file="data.npy"):
-    analisar_resultado(np.load(path + file))
+    analisar_resultado(np.load(path + file),path)
     
 if __name__ == "__main__":
     analisar_arquivo()
