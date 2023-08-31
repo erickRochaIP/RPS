@@ -1,4 +1,6 @@
+import os
 import random
+import sys
 
 import numpy as np
 from scipy import optimize
@@ -68,6 +70,12 @@ def test_function(f, x0, lu, max_avals, f_name=None):
     print(f"Scipy NelderMead: x*={string_point(p_sp)}; f(x*)={media(f, p_sp):.3f}")
     print("==============")
 
+path = ''
+
+if len(sys.argv) == 2:
+    path = 'results/' + sys.argv[1] + '/'
+    if not os.path.isdir(path):
+        os.makedirs(path)
 
 functions = [
     bf.zakharov_function,
@@ -103,7 +111,7 @@ rps5Medias = []
 nmMedias = []
 
 for function in functions:
-    ruido = bf.adiciona_ruido(function)
+    ruido = bf.adiciona_ruido(function, desvio=10)
     qtd = opts["qtd"]
     dim = opts["dim"]
     max_avals = opts["max_avals"]
@@ -136,6 +144,6 @@ data = [
 
 data = np.array(data)
 
-analise_resultado.analisar_resultado(data)
+analise_resultado.analisar_resultado(data, path)
 
-np.save("data.npy", data)
+np.save(path + "data.npy", data)

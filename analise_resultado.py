@@ -3,14 +3,14 @@ import matplotlib.pyplot as plt
 import scikit_posthocs as sp
 import scipy.stats as ss
 
-def analisar_resultado(data):
+def analisar_resultado(data, path):
     # Creating plot
     fig = plt.figure(figsize =(10, 7))
     plt.boxplot(np.log(data.T + 1))
     metodos = ['RPSavg', 'RPStt', 'RPSlin', 'RPSp3', 'RPSr3', 'NMbas']
     plt.xticks([i for i in range(1, len(metodos)+1)], metodos)
-    plt.savefig("resultado.pdf")
-    plt.savefig("resultado.png")
+    plt.savefig(path + "resultado.pdf")
+    plt.savefig(path + "resultado.png")
     
     # estatisticas
     print("="*20)
@@ -25,10 +25,10 @@ def analisar_resultado(data):
     print("="*20)
     print("Teste Nemenyi")
     print(nf)
-    np.save("nemenyi_friedman.npy", np.array(nf))
+    np.save(path + "nemenyi_friedman.npy", np.array(nf))
 
-def analisar_arquivo(file="data.npy"):
-    analisar_resultado(np.load(file))
+def analisar_arquivo(path='', file="data.npy"):
+    analisar_resultado(np.load(path + file))
     
 if __name__ == "__main__":
     analisar_arquivo()
