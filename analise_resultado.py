@@ -7,7 +7,7 @@ def analisar_resultado(data, path):
     # Creating plot
     fig = plt.figure(figsize =(10, 7))
     plt.boxplot(np.log(data.T + 1))
-    metodos = ['RPSavg', 'RPStt', 'RPSlin', 'RPSp3', 'RPSr3', 'NMbas']
+    metodos = ['RPSavg', 'RPStt', 'RPSlin', 'RPSp3', 'RPSr3', 'RPS^c', 'NMbas']
     plt.xticks([i for i in range(1, len(metodos)+1)], metodos)
     plt.savefig(path + "resultado.pdf")
     plt.savefig(path + "resultado.png")

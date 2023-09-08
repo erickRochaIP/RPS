@@ -61,16 +61,14 @@ class PontoAvaliacao:
     def __init__(self, x, lu):
         self.x = x
         self.inviabilidade = PontoAvaliacao.obter_inviabilidade_ponto(x, lu)
-        self.f_x = PontoAvaliacao.lista_f_x(x) if self.inviabilidade == 0 else math.inf
+        self.f_x = [] if self.inviabilidade == 0 else math.inf
     
     # Avaliar funcao
     def avaliar_funcao(x):
+        if PontoAvaliacao._avals >= PontoAvaliacao._max_avals:
+            raise MaxAvalsError(PontoAvaliacao._avals)
         PontoAvaliacao._avals += 1
         return PontoAvaliacao._f(x)
-    
-    def lista_f_x(x):
-        fs = [PontoAvaliacao.avaliar_funcao(x)]
-        return fs
 
     # Obter inviabilidade
     def obter_inviabilidade_ponto(x, lu):
@@ -172,10 +170,16 @@ class PontoAvaliacao:
     # Se a = b retorna 0
     # Se a > b retorna -1
     def confidence_compare(a, b):
-        e = math.ceil(1 + (PontoAvaliacao._emax - 1)*((PontoAvaliacao._avals / PontoAvaliacao._max_avals))**(PontoAvaliacao._crescimento))
+        e = math.ceil(PontoAvaliacao._emax * (PontoAvaliacao._avals / PontoAvaliacao._max_avals)**PontoAvaliacao._crescimento)
         
         # Se e for 1, compara um unico valor de f(x) para a e b
-        if e == 1:
+        if e <= 1:
+            # Se algum dos pontos nao foi avaliado ainda, avalie
+            if a.f_x == []:
+                a.f_x.append(PontoAvaliacao.avaliar_funcao(a.x))
+            if b.f_x == []:
+                b.f_x.append(PontoAvaliacao.avaliar_funcao(b.x))
+                
             ma, mb = a.f_x[0], b.f_x[0]
             if ma < mb:
                 return 1
@@ -234,32 +238,33 @@ class Simplex:
 
     def __init__(self, x0, lu, k = 0):
         self.pontos = Simplex.criar_simplex(x0, lu, k)
-        self.ordenar_simplex()
 
-
-    # Recebe o eixo e o ponto inicial
-    # Retorna ponto inicial + base do eixo
-    # se o ponto nao possui o eixo, retorna o proprio ponto
+    # Recebe ponto inicial, limites das variaveis, repeticao do melhor
+    # Retorna um simplex, no qual os pontos sao ponto inicial + bases
+    def criar_simplex(x0, lu, k):
+        return [PontoAvaliacao(p, lu) for p in Simplex.criar_pontos(x0, k)]
+    
+    # Recebe o ponto inicial, repeticao do melhor
+    # Retorna coordenadas do ponto inicial + bases
+    def criar_pontos(x0, k):
+        return [Simplex.criar_ponto(i, x0, k) for i in range(len(x0)+1)]
+    
+    # Recebe i, ponto inicial, repeticao do melhor
+    # Retorna ponto i-esimo do simplex
     def criar_ponto(i, x0, k):
         if i == len(x0):
             return tuple(x0)
         
         xi = list(x0[:])
-        if xi[i] > 0.00025:
-            xi[i] = (1 + 0.05*(1+k))*xi[i]
-        else:
-            xi[i] = 0.00025*(1+k)
+        xi[i] = xi[i] +1+k
+        
         return xi
+    
+    def gerar_novo_simplex(self, lu, k):
+        self.pontos = [self.pontos[0]] + [PontoAvaliacao(p, lu) for p in Simplex.criar_pontos_redor(self.pontos[0].x, k)]
 
-    # Recebe o ponto inicial
-    # Retorna as bases e a origem
-    def criar_pontos(x0, k):
-        return [Simplex.criar_ponto(i, x0, k) for i in range(len(x0)+1)]
-
-    # Recebe uma funcao, ponto inicial, limites das variaveis
-    # Retorna um simplex ordenado, no qual os pontos sao ponto inicial + bases
-    def criar_simplex(x0, lu, k):
-        return [PontoAvaliacao(p, lu) for p in Simplex.criar_pontos(x0, k)]
+    def criar_pontos_redor(x0, k):
+        return [Simplex.criar_ponto(i, x0, k) for i in range(len(x0))]
 
     # Recebe um simplex
     # Ordena os pontos do simplex baseado na comparacao de PontoAvaliacao
@@ -283,12 +288,19 @@ class Simplex:
         return tuple(sum(p.x[i] for p in self.pontos[:-1]) / n for i in range(n))
 
     # Recebe simplex ordenado, um ponto
-    # Substitui pior ponto do simplex pelo ponto fornecido e ordena o simplex
+    # Substitui pior ponto do simplex pelo ponto fornecido
     def substituir_pior_ponto(self, pa):
-        self.pontos = self.pontos[:-1] + [pa]
-        self.ordenar_simplex()
+        i = 0
+        self.pontos.pop()
+        try:
+            for p in self.pontos:
+                if p > pa:
+                    break
+                i += 1
+        finally:
+            self.pontos.insert(i, pa)
 
-    # Recebe Simplex, coeficiente de encolhimento, funcao e limites das variaveis
+    # Recebe simplex ordenado, coeficiente de encolhimento, funcao e limites das variaveis
     # Encolhe o Simplex e o ordena
     def contrair_simplex(self, coef, lu):
         n = len(self.pontos) - 1
@@ -307,3 +319,10 @@ class Simplex:
             pa.print_ponto()
         print("================")
 
+
+class MaxAvalsError(Exception):
+    def __init__(self, avals=None):
+        self.message = "Quantidade maxima de avaliacoes atingida."
+        if avals is not None:
+            self.message += " (" + str(avals) + " avaliacoes)"
+        super().__init__(self.message)
