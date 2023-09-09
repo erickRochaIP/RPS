@@ -6,14 +6,11 @@ from matplotlib.animation import PillowWriter
 # Recebe uma funcao, ponto inicial, quantidade maxima de avaliacoes, limites de variaveis, parametros
 # tolerancia, quantidade maxima de avaliacoes em um ponto
 # Retorna o ponto cujo valor da funcao e o menor encontrado
-def rps(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
-    if params is None:
-        params = {}
-    coef_reflexao = params["ir"] if "ir" in params else 2
-    coef_exp = params["ie"] if "ie" in params else 2
-    coef_contracao = params["ic"] if "ic" in params else 1/2
-    coef_encolhimento = params["is"] if "is" in params else 1/2
-    crescimento = params["crescimento"] if "crescimento" in params else 1
+def rps(f, x0, max_avals, lu, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 1, eps_x = 0.0, emax = 5):
+    coef_reflexao = dr
+    coef_exp = de
+    coef_contracao = dc
+    coef_encolhimento = ds
     
     # quantidade de vezes que melhor ponto permanece apos estagnacao
     k = 0

@@ -64,8 +64,8 @@ def test_function(f, x0, lu, max_avals, f_name=None):
                  eps_x=1e-6).x
     p_rps = rps.rps(f, x0, max_avals,
                  lu,
-                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2, "crescimento": 1/5},
-                 eps_x=1e-6).x
+                 **{"dr": 1.741, "de": 2.331, "dc": 0.394, "ds": 0.865, "crescimento": 0.421, "eps_x": 0.00087, "emax": 6}
+                 ).x
     p_sp = optimize.minimize(f, x0, method="Nelder-Mead",
                       bounds=lu).x
     
