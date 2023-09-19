@@ -276,7 +276,7 @@ class Simplex:
     def extrair_dados(self):
         return self.pontos[-1], self.pontos[-2], self.pontos[0]
     
-    def estagnou(self, eps_x):
+    def estagnou(self, eps_x): #modificar para quando o ponto estagnar, gerar um novo ponto aleatório
         pior, _, melhor = self.extrair_dados()
         norma = PontoAvaliacao.calcular_distancia(pior, melhor)
         return norma <= eps_x
