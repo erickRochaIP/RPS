@@ -140,10 +140,6 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
 
         with writer.saving(fig, "simplex.gif", 100):
             while PontoAvaliacao.get_max_avals() > PontoAvaliacao.get_avals():
-                if melhor > segundo_pior or segundo_pior > pior or melhor > pior:
-                    print("Erro fatal")
-                else:
-                    print("Mo paz")
                 xlist = [pior.x[0], segundo_pior.x[0], melhor.x[0], pior.x[0]]
                 ylist = [pior.x[1], segundo_pior.x[1], melhor.x[1], pior.x[1]]
                 l.set_data(xlist, ylist)

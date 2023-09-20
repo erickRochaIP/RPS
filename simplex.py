@@ -5,6 +5,8 @@ from scipy.stats import ttest_ind
 
 class PontoAvaliacao:
     
+    # TODO: Eliminar variaveis estaticas para permitir paralelismo
+    #       Implementar classe SimplexContext
     _avals = 0
     _emax = 5
     _max_avals = 400
@@ -152,7 +154,7 @@ class PontoAvaliacao:
         # Se os dois sao viaveis
         else:
             R = PontoAvaliacao.confidence_compare(self, other)
-            return R == -1
+            return R == -1 or R == 0
     
     # Realiza Teste de T Student entre duas amostras a b, com confianca alpha
     # Se a < b retorna 1
