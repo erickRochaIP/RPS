@@ -1,4 +1,5 @@
 import math
+import random
 
 import numpy as np
 from scipy.stats import ttest_ind
@@ -79,6 +80,13 @@ class PontoAvaliacao:
     def obter_inviabilidade_var(xi, lui):
         li, ui = lui[0], lui[1]
         return max(0, li - xi) + max(0, xi - ui)
+
+    def criar_ponto_dentro(lu):
+        return tuple([(random.uniform(l, u)) for l, u in lu])
+    
+    def criar_lu_para(x0):
+        m = max(map(abs, x0))
+        return [(-m, m) for i in x0]
 
     # Recebe dois pontos e um coeficiente
     # Retorna um ponto deslocado A + AB*coef
@@ -260,13 +268,11 @@ class Simplex:
         xi = list(x0[:])
         xi[i] = xi[i] +1+k
         
-        return xi
+        return tuple(xi)
     
     def gerar_novo_simplex(self, lu, k):
-        self.pontos = [self.pontos[0]] + [PontoAvaliacao(p, lu) for p in Simplex.criar_pontos_redor(self.pontos[0].x, k)]
-
-    def criar_pontos_redor(x0, k):
-        return [Simplex.criar_ponto(i, x0, k) for i in range(len(x0))]
+        x0 = PontoAvaliacao.criar_ponto_dentro(lu)
+        self.pontos = Simplex.criar_simplex(x0, lu, k)
 
     # Recebe um simplex
     # Ordena os pontos do simplex baseado na comparacao de PontoAvaliacao

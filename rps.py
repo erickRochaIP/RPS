@@ -6,7 +6,7 @@ from matplotlib.animation import PillowWriter
 # Recebe uma funcao, ponto inicial, quantidade maxima de avaliacoes, limites de variaveis, parametros
 # tolerancia, quantidade maxima de avaliacoes em um ponto
 # Retorna o ponto cujo valor da funcao e o menor encontrado
-def rps(f, x0, max_avals, lu, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 1, eps_x = 0.0, emax = 5):
+def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 1, eps_x = 0.0, emax = 5, save_gif = False):
     coef_reflexao = dr
     coef_exp = de
     coef_contracao = dc
@@ -21,22 +21,41 @@ def rps(f, x0, max_avals, lu, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 
     PontoAvaliacao.set_max_avals(max_avals)
     PontoAvaliacao.set_f(f)
     PontoAvaliacao.set_crescimento(crescimento)
+    
+    if lu is None and x0 is None:
+        lu = [(-5, 5), (-5, 5)]
+        x0 = PontoAvaliacao.criar_ponto_dentro(lu)
+    elif x0 is None:
+        x0 = PontoAvaliacao.criar_ponto_dentro(lu)
+    elif lu is None:
+        lu = PontoAvaliacao.criar_lu_para(x0)
+                
+    xlists = []
+    ylists = []
 
     # Criar Simplex
     S = Simplex(x0, lu)
     melhor = S.pontos[-1]
+    melhor_de_todos = melhor
     
     try:
         S.ordenar_simplex()
     
         pior, segundo_pior, melhor = S.extrair_dados()
+        melhor_de_todos = melhor
         atual_melhor = melhor
 
         while PontoAvaliacao.get_max_avals() > PontoAvaliacao.get_avals():
+            if save_gif:
+                xlists.append(get_list(pior, segundo_pior, melhor, 0))
+                ylists.append(get_list(pior, segundo_pior, melhor, 1))
+            
+            if melhor_de_todos > melhor:    # Se forem o mesmo ponto vao gastar avaliacoes
+                melhor_de_todos = melhor    # Talvez comparar de outra forma
             # Se pior ponto esta muito proximo do melhor, reinicia simplex em volta do melhor
             if S.estagnou(eps_x):
                 if PontoAvaliacao.calcular_distancia(atual_melhor, melhor) < eps_x:
-                    k +=1
+                    k += 1
                 else:
                     k = 0
                 atual_melhor = melhor
@@ -95,10 +114,28 @@ def rps(f, x0, max_avals, lu, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 
         PontoAvaliacao.reset_emax()
         PontoAvaliacao.reset_max_avals()
         PontoAvaliacao.reset_f()
+    
+    if save_gif:
+        get_gif(lu, xlists, ylists)
 
-    return melhor
+    return melhor_de_todos
 
 
+def get_gif(lu, xlists, ylists):
+    fig = plt.figure()
+    l, = plt.plot([], [], 'k-')
+    plt.xlim(lu[0])
+    plt.ylim(lu[1])
+    metadata = dict(title='Simplex', artist='')
+    writer = PillowWriter(fps=5, metadata=metadata)
+    with writer.saving(fig, "simplex.gif", 100):
+        for (xlist, ylist) in zip(xlists, ylists):
+            l.set_data(xlist, ylist)
+            writer.grab_frame()
+            
+
+def get_list(p, s_p, m, i):
+    return [p.x[i], s_p.x[i], m.x[i], p.x[i]]
 
 def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
     if params is None:
