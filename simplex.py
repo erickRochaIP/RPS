@@ -2,7 +2,7 @@ import math
 import random
 
 import numpy as np
-from scipy.stats import ttest_ind
+from scipy.stats import ttest_ind, wilcoxon
 
 class PontoAvaliacao:
     
@@ -11,8 +11,10 @@ class PontoAvaliacao:
     _avals = 0
     _emax = 5
     _max_avals = 400
-    _crescimento = 1
     _f = None
+    _tau = 1
+    _alpha = 0.05
+    _teste = ttest_ind
       
     # Acessar avals
     def get_avals():
@@ -40,16 +42,6 @@ class PontoAvaliacao:
         
     def reset_max_avals():
         PontoAvaliacao._max_avals = 400
-    
-    # Acessar crescimento
-    def get_crescimento():
-        return PontoAvaliacao._crescimento
-    
-    def set_crescimento(crescimento):
-        PontoAvaliacao._crescimento = max(0, crescimento)
-    
-    def reset_crescimento():
-        PontoAvaliacao._crescimento = 1
         
     # Acessar f
     def get_f():
@@ -60,6 +52,41 @@ class PontoAvaliacao:
         
     def reset_f():
         PontoAvaliacao._f = None
+    
+    # Acessar tau
+    def get_tau():
+        return PontoAvaliacao._tau
+    
+    def set_tau(tau):
+        PontoAvaliacao._tau = max(0, tau)
+    
+    def reset_tau():
+        PontoAvaliacao._tau = 1
+    
+    # Acessar alpha
+    def get_alpha():
+        return PontoAvaliacao._alpha
+    
+    def set_alpha(alpha):
+        PontoAvaliacao._alpha = alpha
+    
+    def reset_alpha():
+        PontoAvaliacao._alpha = 0.05
+    
+    # Acessar teste
+    def get_teste():
+        return PontoAvaliacao._teste
+    
+    def set_teste(teste):
+        testes = {
+            "ttest": ttest_ind,
+            "wilcoxon": wilcoxon
+        }
+        if teste in testes:
+            PontoAvaliacao._teste = testes[teste]
+    
+    def reset_teste():
+        PontoAvaliacao._teste = ttest_ind
         
     def __init__(self, x, lu):
         self.x = x
@@ -168,10 +195,12 @@ class PontoAvaliacao:
     # Se a < b retorna 1
     # Se a = b retorna 0
     # Se a > b retorna -1
-    def tTest(a, b, alpha = 0.05):
-        if ttest_ind(a, b, alternative="less").pvalue < alpha:
+    def testar(a, b):
+        teste = PontoAvaliacao.get_teste()
+        alpha = PontoAvaliacao.get_alpha()
+        if teste(a, b, alternative="less").pvalue < alpha:
             return 1
-        if ttest_ind(a, b, alternative="greater").pvalue < alpha:
+        if teste(a, b, alternative="greater").pvalue < alpha:
             return -1
         return 0
     
@@ -180,7 +209,7 @@ class PontoAvaliacao:
     # Se a = b retorna 0
     # Se a > b retorna -1
     def confidence_compare(a, b):
-        e = math.ceil(PontoAvaliacao._emax * (PontoAvaliacao._avals / PontoAvaliacao._max_avals)**PontoAvaliacao._crescimento)
+        e = math.ceil(PontoAvaliacao._emax * (PontoAvaliacao._avals / PontoAvaliacao._max_avals)**PontoAvaliacao._tau)
         
         # Se e for 1, compara um unico valor de f(x) para a e b
         if e <= 1:
@@ -209,8 +238,8 @@ class PontoAvaliacao:
         na, ma, sa = len(a.f_x), np.mean(a.f_x), np.std(a.f_x)
         nb, mb, sb = len(b.f_x), np.mean(b.f_x), np.std(b.f_x)
         
-        # Realizar um teste t
-        H = PontoAvaliacao.tTest(a.f_x, b.f_x)
+        # Realizar um teste estatistico
+        H = PontoAvaliacao.testar(a.f_x, b.f_x)
         
         # Enquanto o teste alegar igualdade e for possivel avaliar algum ponto
         while(H == 0 and (na < e or nb < e)):
@@ -229,7 +258,7 @@ class PontoAvaliacao:
             nb, mb, sb = len(b.f_x), np.mean(b.f_x), np.std(b.f_x)
             
             # Realizar um teste t
-            H = PontoAvaliacao.tTest(a.f_x, b.f_x)
+            H = PontoAvaliacao.testar(a.f_x, b.f_x)
         
         # Se o teste acabou em igualdade, compara as medias
         if H == 0:

@@ -7,7 +7,8 @@ import numpy as np
 # Recebe uma funcao, ponto inicial, quantidade maxima de avaliacoes, limites de variaveis, parametros
 # tolerancia, quantidade maxima de avaliacoes em um ponto
 # Retorna o ponto cujo valor da funcao e o menor encontrado
-def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 1, eps_x = 0.0, emax = 5,
+def rps(f, x0 = None, lu = None, max_avals = 200,
+        dr = 2, de = 2, dc = 0.5, ds = 0.5, eps_x = 0.0, emax = 5, tau = 1, alpha = 0.05, teste = None,
         save_gif = False, titulo = None, f_original = None):
     coef_reflexao = dr
     coef_exp = de
@@ -22,7 +23,9 @@ def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds =
     PontoAvaliacao.set_emax(emax)
     PontoAvaliacao.set_max_avals(max_avals)
     PontoAvaliacao.set_f(f)
-    PontoAvaliacao.set_crescimento(crescimento)
+    PontoAvaliacao.set_tau(tau)
+    PontoAvaliacao.set_alpha(alpha)
+    PontoAvaliacao.set_teste(teste)
     
     if lu is None and x0 is None:
         lu = [(-5, 5), (-5, 5)]
@@ -116,6 +119,9 @@ def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds =
         PontoAvaliacao.reset_emax()
         PontoAvaliacao.reset_max_avals()
         PontoAvaliacao.reset_f()
+        PontoAvaliacao.reset_tau()
+        PontoAvaliacao.reset_alpha()
+        PontoAvaliacao.reset_teste()
     
     if save_gif:
         get_gif(lu, xlists, ylists, titulo, f_original)
