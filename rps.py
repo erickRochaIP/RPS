@@ -2,11 +2,13 @@ from simplex import Simplex, PontoAvaliacao, MaxAvalsError
 
 import matplotlib.pyplot as plt
 from matplotlib.animation import PillowWriter
+import numpy as np
 
 # Recebe uma funcao, ponto inicial, quantidade maxima de avaliacoes, limites de variaveis, parametros
 # tolerancia, quantidade maxima de avaliacoes em um ponto
 # Retorna o ponto cujo valor da funcao e o menor encontrado
-def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 1, eps_x = 0.0, emax = 5, save_gif = False):
+def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds = 0.5, crescimento = 1, eps_x = 0.0, emax = 5,
+        save_gif = False, titulo = None, f_original = None):
     coef_reflexao = dr
     coef_exp = de
     coef_contracao = dc
@@ -116,18 +118,30 @@ def rps(f, x0 = None, max_avals = 200, lu = None, dr = 2, de = 2, dc = 0.5, ds =
         PontoAvaliacao.reset_f()
     
     if save_gif:
-        get_gif(lu, xlists, ylists)
+        get_gif(lu, xlists, ylists, titulo, f_original)
 
     return melhor_de_todos
 
 
-def get_gif(lu, xlists, ylists):
-    fig = plt.figure()
-    l, = plt.plot([], [], 'k-')
+def get_gif(lu, xlists, ylists, titulo, f_original=None):
+    fig, ax = plt.subplots()
+    ax.set_title(titulo)
     plt.xlim(lu[0])
     plt.ylim(lu[1])
     metadata = dict(title='Simplex', artist='')
     writer = PillowWriter(fps=5, metadata=metadata)
+    if f_original is not None:
+        delta = 0.025
+        x = np.arange(lu[0][0], lu[0][1], delta)
+        y = np.arange(lu[1][0], lu[1][1], delta)
+        X, Y = np.meshgrid(x, y)
+        m, n = len(X), len(X[0])
+        Z = [[f_original([X[i][j], Y[i][j]]) for j in range(n)] for i in range(m)]
+        im = ax.imshow(Z, interpolation='bilinear', origin='lower', alpha=0.6,
+               extent=(lu[0][0], lu[0][1], lu[1][0], lu[1][1]))
+        CS = ax.contour(X, Y, Z)
+    
+    l, = plt.plot([], [], 'k-')
     with writer.saving(fig, "simplex.gif", 100):
         for (xlist, ylist) in zip(xlists, ylists):
             l.set_data(xlist, ylist)
