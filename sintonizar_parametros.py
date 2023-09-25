@@ -1,7 +1,7 @@
 import random
 
 import numpy as np
-from skopt.space import Real, Integer
+from skopt.space import Real, Integer, Categorical
 from skopt.utils import use_named_args
 from skopt import gp_minimize
 
@@ -15,14 +15,16 @@ space = [
     Real(1.1, 3, name="de"),
     Real(0.1, 0.9, name="dc"),
     Real(0.1, 0.9, name="ds"),
-    Real(0, 3, name="crescimento"), #modificar o nome para "tau"
     Real(0, 1e-03, name="eps_x"),
-    Integer(1, 10, name="emax") #modoficado para ser possível comparar com o Nelder Mead, valor anterior [2,10]
+    Integer(1, 10, name="emax"),
+    Real(0, 3, name="tau"),
+    Real(0.01, 0.10, name="alpha"),
+    Categorical(["ttest", "wilcoxon"], name="teste")
 ]
 
 qtd = 5
-num_var = 10 #num_var modificado, valor anterior 5
-bounds = [(-10, 10)]*num_var #bounds modificado, valor anterior [-5,5]
+num_var = 10
+bounds = [(-10, 10)]*num_var
 max_avals = 200
 x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
 functions = [
@@ -62,5 +64,5 @@ def eval_rps(**params):
         
     return media_funcoes / len(functions)
 
-res_gp = gp_minimize(eval_rps, space, n_calls=50, random_state=0) #n_calls modificado, valor anterior 15
+res_gp = gp_minimize(eval_rps, space, n_calls=50, random_state=0)
 print(res_gp.x)
