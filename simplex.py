@@ -2,7 +2,7 @@ import math
 import random
 
 import numpy as np
-from scipy.stats import ttest_ind, wilcoxon
+from scipy.stats import ttest_ind, ranksums
 
 class PontoAvaliacao:
     
@@ -80,7 +80,7 @@ class PontoAvaliacao:
     def set_teste(teste):
         testes = {
             "ttest": ttest_ind,
-            "wilcoxon": wilcoxon
+            "wilcoxon": ranksums
         }
         if teste in testes:
             PontoAvaliacao._teste = testes[teste]
