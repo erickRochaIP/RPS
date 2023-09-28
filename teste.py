@@ -1,4 +1,5 @@
 import os
+import pickle
 import random
 import sys
 
@@ -6,15 +7,22 @@ import numpy as np
 from scipy import optimize
 
 import benchmark_functions as bf
-import rps1
-import rps2
-import rps3
-import rps4
-import rps5
 import rps
+import nelder_mead
+import rps_avg
+import rps_tt
 
 import analise_resultado
 
+files = ["rps.pkl", "nelder_mead.pkl", "rps_avg.pkl", "rps_tt.pkl"]
+metodos = ["rps", "nelder_mead", "rps_avg", "rps_tt"]
+params = {}
+for file, metodo in zip(files, metodos):
+    try:
+        with open(file, "rb") as fp:
+            params[metodo] = pickle.load(fp)
+    except:
+        params[metodo] = {}
 
 def media(f, x):
     return np.mean([f(x) for _ in range(100)])
@@ -33,54 +41,32 @@ def criar_ponto(lu):
     return x
 
 def test_function(f, x0, lu, max_avals, f_name=None):
-    if f_name is not None:
-        print(f_name)
-        print()
-    elif f.__name__ is not None:
-        print(f.__name__)
-        print()
-    
-    print(x0)
-    
-    p_rps1 = rps1.rps(f, x0, max_avals,
-                 lu,
-                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
-                 eps_x=1e-6).x
-    p_rps2 = rps2.rps(f, x0, max_avals,
-                 lu,
-                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
-                 eps_x=1e-6).x
-    p_rps3 = rps3.rps(f, x0, max_avals,
-                 lu,
-                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
-                 eps_x=1e-6).x
-    p_rps4 = rps4.rps(f, x0, max_avals,
-                 lu,
-                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
-                 eps_x=1e-6).x
-    p_rps5 = rps5.rps(f, x0, max_avals,
-                 lu,
-                 params = {"ie": 2, "ic": 1/2, "ir": 2, "is": 1/2},
-                 eps_x=1e-6).x
-    p_rps = rps.rps(f, x0, max_avals,
-                 lu,
-                 **{"dr": 1.856, "de": 2.537, "dc": 0.400, "ds": 0.881, "crescimento": 0.224, "eps_x": 0.00098, "emax": 5}
+    p_rps = rps.rps(f, x0, lu, max_avals,
+                 **params["rps"]
                  ).x
-    p_sp = optimize.minimize(f, x0, method="Nelder-Mead",
-                      bounds=lu).x
+    p_nelder_mead = nelder_mead.nelder_mead(f, x0, lu, max_avals,
+                 **params["nelder_mead"]
+                 ).x
+    p_rps_avg = rps_avg.rps_avg(f, x0, lu, max_avals,
+                 **params["rps_avg"]
+                 ).x
+    p_rps_tt = rps_tt.rps_tt(f, x0, lu, max_avals,
+                 **params["rps_tt"]
+                 ).x
     
-    return (p_rps1, p_rps2, p_rps3, p_rps4, p_rps5, p_rps, p_sp)
-    
-    print(f"RPS: x*={string_point(p_rps)}; f(x*)={media(f, p_rps):.3f}")
-    print(f"Scipy NelderMead: x*={string_point(p_sp)}; f(x*)={media(f, p_sp):.3f}")
-    print("==============")
+    return (p_rps, p_nelder_mead, p_rps_avg, p_rps_tt)
 
 path = ''
 
-if len(sys.argv) == 2:
+desvio = 10
+
+if len(sys.argv) >= 2:
     path = 'results/' + sys.argv[1] + '/'
     if not os.path.isdir(path):
         os.makedirs(path)
+
+if len(sys.argv) >= 3:
+    desvio = float(sys.argv[2])
 
 functions = [
     bf.zakharov_function,
@@ -102,57 +88,42 @@ functions = [
     ]
 
 #opts = {"lu": [(-5, 5)], "qtd": 30, "dim": 10, "max_avals": 1000}
-opts = {"lu": [(-5, 5)], "qtd": 10, "dim": 5, "max_avals": 500}
-#opts = {"lu": [(-5, 5)], "qtd": 2, "dim": 3, "max_avals": 300}
+#opts = {"lu": [(-5, 5)], "qtd": 10, "dim": 5, "max_avals": 500}
+opts = {"lu": [(-5, 5)], "qtd": 2, "dim": 2, "max_avals": 200}
 
 
 lu = opts["lu"]
 
-rps1Medias = []
-rps2Medias = []
-rps3Medias = []
-rps4Medias = []
-rps5Medias = []
 rpsMedias = []
-nmMedias = []
+nelder_meadMedias = []
+rps_avgMedias = []
+rps_ttMedias = []
 
 for function in functions:
-    ruido = bf.adiciona_ruido(function, desvio=10)
+    ruido = bf.adiciona_ruido(function, desvio=desvio)
     qtd = opts["qtd"]
     dim = opts["dim"]
     max_avals = opts["max_avals"]
-    rps1Media, rps2Media, rps3Media, rps4Media, rps5Media, rpsMedia, nmMedia = 0, 0, 0, 0, 0, 0, 0
+    rpsMedia, nelder_meadMedia, rps_avgMedia, rps_ttMedia = 0, 0, 0, 0
     for i in range(qtd):
         limites_lu = lu*dim
-        rps1P, rps2P, rps3P, rps4P, rps5P, rpsP, nmP = test_function(ruido, criar_ponto(limites_lu), limites_lu, max_avals, function.__name__)
-        rps1Media += function(rps1P)
-        rps2Media += function(rps2P)
-        rps3Media += function(rps3P)
-        rps4Media += function(rps4P)
-        rps5Media += function(rps5P)
+        rpsP, nmP, ravgP, rttP = test_function(ruido, criar_ponto(limites_lu), limites_lu, max_avals, function.__name__)
         rpsMedia += function(rpsP)
-        nmMedia += function(nmP)
-    rps1Medias.append(rps1Media / qtd)
-    rps2Medias.append(rps2Media / qtd)
-    rps3Medias.append(rps3Media / qtd)
-    rps4Medias.append(rps4Media / qtd)
-    rps5Medias.append(rps5Media / qtd)
+        nelder_meadMedia += function(nmP)
+        rps_avgMedia += function(ravgP)
+        rps_ttMedia += function(rttP)
     rpsMedias.append(rpsMedia / qtd)
-
-    nmMedias.append(nmMedia / qtd)
+    nelder_meadMedias.append(nelder_meadMedia / qtd)
+    rps_avgMedias.append(rps_avgMedia / qtd)
+    rps_ttMedias.append(rps_ttMedia / qtd)
 
 data = [
-    rps1Medias,
-    rps2Medias,
-    rps3Medias,
-    rps4Medias,
-    rps5Medias,
     rpsMedias,
-    nmMedias
+    nelder_meadMedias,
+    rps_avgMedias,
+    rps_ttMedias
 ]
 
 data = np.array(data)
-
-analise_resultado.analisar_resultado(data, path)
-
 np.save(path + "data.npy", data)
+analise_resultado.analisar_resultado(data, path, "Nível de ruído: " + str(desvio))
