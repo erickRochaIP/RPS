@@ -87,9 +87,9 @@ functions = [
     bf.schaffer_f7_function,
     ]
 
-#opts = {"lu": [(-5, 5)], "qtd": 30, "dim": 10, "max_avals": 1000}
+opts = {"lu": [(-5, 5)], "qtd": 30, "dim": 10, "max_avals": 1000}
 #opts = {"lu": [(-5, 5)], "qtd": 10, "dim": 5, "max_avals": 500}
-opts = {"lu": [(-5, 5)], "qtd": 2, "dim": 2, "max_avals": 200}
+#opts = {"lu": [(-5, 5)], "qtd": 2, "dim": 2, "max_avals": 200}
 
 
 lu = opts["lu"]
