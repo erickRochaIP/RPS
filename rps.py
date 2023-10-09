@@ -19,14 +19,14 @@ def nelder_mead_reset(f, x0=None, lu=None, max_avals=200,
                save_gif=save_gif, titulo=titulo, f_original=f_original)
 
 def rps_avg(f, x0=None, lu=None, max_avals=200,
-            dr=2, de=2, dc=0.5, ds=0.5, eps_x=0.0, emax=5,
+            dr=2, de=2, dc=0.5, ds=0.5, eps_x=0.05, emax=5,
             save_gif=False, titulo=None, f_original=None):
     return rps(f, x0, lu, max_avals,
                dr, de, dc, ds, eps_x, emax, tau=0, alpha=0, teste="none",
                save_gif=save_gif, titulo=titulo, f_original=f_original)
 
-def rps_tst(f, x0=None, lu=None, max_avals=200,
-            dr=2, de=2, dc=0.5, ds=0.5, eps_x=0.0, emax=5, alpha=0.05, teste=None,
+def rps_test(f, x0=None, lu=None, max_avals=200,
+            dr=2, de=2, dc=0.5, ds=0.5, eps_x=0.05, emax=5, alpha=0.05, teste=None,
             save_gif=False, titulo=None, f_original=None):
     return rps(f, x0, lu, max_avals,
                dr, de, dc, ds, eps_x, emax, tau=0, alpha=alpha, teste=teste,

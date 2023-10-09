@@ -1,18 +1,29 @@
+import os
 import pickle
 import random
+import sys
 
 import numpy as np
+from skopt.plots import plot_convergence
 from skopt.space import Real, Integer, Categorical
 from skopt.utils import use_named_args
 from skopt import gp_minimize
 
 import benchmark_functions as bf
-from rps import rps
-from nelder_mead import nelder_mead
-from rps_avg import rps_avg
-from rps_tt import rps_tt
+from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
 
 np.int = np.int_
+
+
+path = ''
+desvio = 10
+if len(sys.argv) >= 2:
+    path = 'results/params/' + sys.argv[1] + '/'
+    if not os.path.isdir(path):
+        os.makedirs(path)
+
+if len(sys.argv) >= 3:
+    desvio = float(sys.argv[2])
 
 space_rps = [
     Real(1.1, 3, name="dr"),
@@ -26,15 +37,14 @@ space_rps = [
     Categorical(["ttest", "wilcoxon", "none"], name="teste")
 ]
 
-# Fixar eps = 0
-space_nelder_mead = [
+space_nelder_mead_base = [
     Real(1.1, 3, name="dr"),
     Real(1.1, 3, name="de"),
     Real(0.1, 0.9, name="dc"),
     Real(0.1, 0.9, name="ds")
 ]
 
-space_nelder_mead_rst = [
+space_nelder_mead_reset = [
     Real(1.1, 3, name="dr"),
     Real(1.1, 3, name="de"),
     Real(0.1, 0.9, name="dc"),
@@ -51,7 +61,7 @@ space_rps_avg = [
     Integer(1, 10, name="emax"),
 ]
 
-space_rps_tt = [
+space_rps_test = [
     Real(1.1, 3, name="dr"),
     Real(1.1, 3, name="de"),
     Real(0.1, 0.9, name="dc"),
@@ -63,9 +73,9 @@ space_rps_tt = [
 ]
 
 qtd = 1
-num_var = 10
+num_var = 4
 bounds = [(-10, 10)]*num_var
-max_avals = 1000
+max_avals = 200
 x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
 functions = [
     bf.zakharov_function,
@@ -86,7 +96,7 @@ functions = [
     bf.schaffer_f7_function,
     ]
 
-functions_com_ruido = [bf.adiciona_ruido(f, desvio=2) for f in functions]
+functions_com_ruido = [bf.adiciona_ruido(f, desvio=desvio) for f in functions]
 
 def media(params, metodo):
     media_funcoes = 0
@@ -107,28 +117,35 @@ def eval_rps(**params):
     print(params)
     return media(params, rps)
 
-@use_named_args(space_nelder_mead)
-def eval_nelder_mead(**params):
+@use_named_args(space_nelder_mead_base)
+def eval_nelder_mead_base(**params):
     print(params)
-    return media(params, nelder_mead)
+    return media(params, nelder_mead_base)
+
+@use_named_args(space_nelder_mead_reset)
+def eval_nelder_mead_reset(**params):
+    print(params)
+    return media(params, nelder_mead_reset)
 
 @use_named_args(space_rps_avg)
 def eval_rps_avg(**params):
     print(params)
     return media(params, rps_avg)
 
-@use_named_args(space_rps_tt)
-def eval_rps_tt(**params):
+@use_named_args(space_rps_test)
+def eval_rps_test(**params):
     print(params)
-    return media(params, rps_tt)
+    return media(params, rps_test)
 
-evals = [eval_rps, eval_nelder_mead, eval_rps_avg, eval_rps_tt]
-spaces = [space_rps, space_nelder_mead, space_rps_avg, space_rps_tt]
-files = ["rps.pkl", "nelder_mead.pkl", "rps_avg.pkl", "rps_tt.pkl"]
+evals = [eval_rps, eval_nelder_mead_base, eval_nelder_mead_reset, eval_rps_avg, eval_rps_test]
+spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_avg, space_rps_test]
+files = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test"]
 
 for eval, space, file in zip(evals, spaces, files):
-    res_gp = gp_minimize(eval, space, n_calls=500, random_state=0)
+    res_gp = gp_minimize(eval, space, n_calls=10, random_state=0)
     params_sintonizados = {s.name: p for s, p in zip(space, res_gp.x)}
-    # Salvar grafico de convergencia
-    with open(file, 'wb') as fp:
+    with open(path + file + ".pkl", 'wb') as fp:
         pickle.dump(params_sintonizados, fp)
+    ax = plot_convergence(res_gp)
+    ax.figure.savefig(path + "conv_plot_" + file + ".png")
+    ax.figure.clear()
