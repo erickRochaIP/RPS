@@ -4,6 +4,13 @@ import random
 import numpy as np
 from scipy.stats import ttest_ind, ranksums
 
+class NoneTest:
+    # Cria um teste cujo pvalue sempre e 1
+    def __init__(self):
+        self.pvalue=1
+    def none_test(a, b, alternative):
+        return NoneTest()
+
 class PontoAvaliacao:
     
     # TODO: Eliminar variaveis estaticas para permitir paralelismo
@@ -80,7 +87,8 @@ class PontoAvaliacao:
     def set_teste(teste):
         testes = {
             "ttest": ttest_ind,
-            "wilcoxon": ranksums
+            "wilcoxon": ranksums,
+            "none": NoneTest.none_test
         }
         if teste in testes:
             PontoAvaliacao._teste = testes[teste]

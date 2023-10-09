@@ -23,10 +23,18 @@ space_rps = [
     Integer(1, 10, name="emax"),
     Real(0, 3, name="tau"),
     Real(0.01, 0.10, name="alpha"),
-    Categorical(["ttest", "wilcoxon"], name="teste")
+    Categorical(["ttest", "wilcoxon", "none"], name="teste")
 ]
 
+# Fixar eps = 0
 space_nelder_mead = [
+    Real(1.1, 3, name="dr"),
+    Real(1.1, 3, name="de"),
+    Real(0.1, 0.9, name="dc"),
+    Real(0.1, 0.9, name="ds")
+]
+
+space_nelder_mead_rst = [
     Real(1.1, 3, name="dr"),
     Real(1.1, 3, name="de"),
     Real(0.1, 0.9, name="dc"),
@@ -51,13 +59,13 @@ space_rps_tt = [
     Real(0, 1e-03, name="eps_x"),
     Integer(1, 10, name="emax"),
     Real(0.01, 0.10, name="alpha"),
-    Categorical(["ttest", "wilcoxon"], name="teste")
+    Categorical(["ttest", "wilcoxon", "none"], name="teste")
 ]
 
 qtd = 1
 num_var = 10
 bounds = [(-10, 10)]*num_var
-max_avals = 200
+max_avals = 1000
 x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
 functions = [
     bf.zakharov_function,
@@ -119,7 +127,8 @@ spaces = [space_rps, space_nelder_mead, space_rps_avg, space_rps_tt]
 files = ["rps.pkl", "nelder_mead.pkl", "rps_avg.pkl", "rps_tt.pkl"]
 
 for eval, space, file in zip(evals, spaces, files):
-    res_gp = gp_minimize(eval, space, n_calls=50, random_state=0)
+    res_gp = gp_minimize(eval, space, n_calls=500, random_state=0)
     params_sintonizados = {s.name: p for s, p in zip(space, res_gp.x)}
+    # Salvar grafico de convergencia
     with open(file, 'wb') as fp:
         pickle.dump(params_sintonizados, fp)
