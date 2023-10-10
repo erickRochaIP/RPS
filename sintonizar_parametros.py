@@ -73,9 +73,9 @@ space_rps_test = [
 ]
 
 qtd = 1
-num_var = 4
+num_var = 10
 bounds = [(-10, 10)]*num_var
-max_avals = 200
+max_avals = 1000
 x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
 functions = [
     bf.zakharov_function,
@@ -142,7 +142,7 @@ spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_
 files = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test"]
 
 for eval, space, file in zip(evals, spaces, files):
-    res_gp = gp_minimize(eval, space, n_calls=10, random_state=0)
+    res_gp = gp_minimize(eval, space, n_calls=500, random_state=0)
     params_sintonizados = {s.name: p for s, p in zip(space, res_gp.x)}
     with open(path + file + ".pkl", 'wb') as fp:
         pickle.dump(params_sintonizados, fp)
