@@ -3,11 +3,21 @@ import matplotlib.pyplot as plt
 import scikit_posthocs as sp
 import scipy.stats as ss
 
-def analisar_resultado(data, path, title = ""):
+def analisar_resultado(data_crua, path, title = ""):
+    # Tirando as medias
+    data = [
+        [
+            np.mean(data_crua[metodo][function_name])
+            for function_name in range(len(data_crua[metodo]))
+        ]
+        for metodo in range(len(data_crua))
+    ]
+    data = np.array(data)
+    
     # Creating plot
     fig = plt.figure(figsize =(10, 7))
     plt.boxplot(np.log(data.T + 1))
-    metodos = ["rps", "nelder_mead", "rps_avg", "rps_tt"]
+    metodos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test"]
     plt.xticks([i for i in range(1, len(metodos)+1)], metodos)
     plt.xlabel("Algoritmos")
     plt.ylabel("Valor de objetivo")
