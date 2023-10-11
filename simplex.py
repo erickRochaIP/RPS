@@ -19,9 +19,11 @@ class PontoAvaliacao:
     _emax = 5
     _max_avals = 400
     _f = None
+    _f_original = None
     _tau = 1
     _alpha = 0.05
     _teste = ttest_ind
+    _best_sols = []
       
     # Acessar avals
     def get_avals():
@@ -59,6 +61,16 @@ class PontoAvaliacao:
         
     def reset_f():
         PontoAvaliacao._f = None
+        
+    # Acessar f_original
+    def get_f_original():
+        return PontoAvaliacao._f_original
+    
+    def set_f_original(f):
+        PontoAvaliacao._f_original = f
+        
+    def reset_f_original():
+        PontoAvaliacao._f_original = None
     
     # Acessar tau
     def get_tau():
@@ -95,6 +107,21 @@ class PontoAvaliacao:
     
     def reset_teste():
         PontoAvaliacao._teste = ttest_ind
+    
+    # Acessar best_sols
+    def get_best_sols():
+        return PontoAvaliacao._best_sols
+    
+    def append_best_sols(fx):
+        PontoAvaliacao._best_sols.append(fx)
+    
+    def get_last_best_sol():
+        if PontoAvaliacao._best_sols == []:
+            return math.inf
+        return PontoAvaliacao._best_sols[-1]
+    
+    def reset_best_sols():
+        PontoAvaliacao._best_sols = []
         
     def __init__(self, x, lu):
         self.x = x
@@ -106,6 +133,8 @@ class PontoAvaliacao:
         if PontoAvaliacao._avals >= PontoAvaliacao._max_avals:
             raise MaxAvalsError(PontoAvaliacao._avals)
         PontoAvaliacao._avals += 1
+        if PontoAvaliacao._f_original is not None:
+            PontoAvaliacao.append_best_sols(min(PontoAvaliacao._f_original(x), PontoAvaliacao.get_last_best_sol()))
         return PontoAvaliacao._f(x)
 
     # Obter inviabilidade

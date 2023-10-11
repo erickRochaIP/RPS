@@ -51,6 +51,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
     PontoAvaliacao.set_emax(emax)
     PontoAvaliacao.set_max_avals(max_avals)
     PontoAvaliacao.set_f(f)
+    PontoAvaliacao.set_f_original(f_original)
     PontoAvaliacao.set_tau(tau)
     PontoAvaliacao.set_alpha(alpha)
     PontoAvaliacao.set_teste(teste)
@@ -147,13 +148,19 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
         PontoAvaliacao.reset_emax()
         PontoAvaliacao.reset_max_avals()
         PontoAvaliacao.reset_f()
+        PontoAvaliacao.reset_f_original()
         PontoAvaliacao.reset_tau()
         PontoAvaliacao.reset_alpha()
         PontoAvaliacao.reset_teste()
+        
+        best_sols = PontoAvaliacao.get_best_sols().copy()
+        PontoAvaliacao.reset_best_sols()
     
     if save_gif:
         get_gif(lu, xlists, ylists, titulo, f_original)
 
+    if f_original is not None:
+        return melhor_de_todos, best_sols
     return melhor_de_todos
 
 
