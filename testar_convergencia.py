@@ -28,7 +28,7 @@ for metodo in metodos:
         print("Parametros de " + metodo + " nao encontrados")
         params[metodo] = {}
 
-opts = {"lu": [(-100, 100)], "qtd": 15, "dim": 20, "max_avals": 50000}
+opts = {"lu": [(-100, 100)], "qtd": 15, "dim": 20, "max_avals": 100000}
 
 qtd = opts["qtd"]
 dim = opts["dim"]
