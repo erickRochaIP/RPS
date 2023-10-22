@@ -1,58 +1,88 @@
 import os
 import pickle
 import random
+import sys
 
 from matplotlib import pyplot as plt
 import numpy as np
-from benchmark_functions import rastrigin_function as function
-from benchmark_functions import adiciona_ruido
+import benchmark_functions as bf
 
 from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
 
-path = "results/avals/"
-if not os.path.isdir(path):
-    os.makedirs(path)
+path_params = ''
+path_results = ''
+if len(sys.argv) >= 2:
+    path_params = 'results/params/' + sys.argv[1] + '/'
+    path_results = 'results/out/' + sys.argv[1] + '/'
+    if not os.path.isdir(path_params):
+        os.makedirs(path_params)
+    if not os.path.isdir(path_results):
+        os.makedirs(path_results)
 
-desvio = 5
-
-metodos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test"]
-labels = ["RPStau", "NMbas", "NMrst", "RPSavg", "RPStst"]
-met_funs = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test]
-params = {}
-for metodo in metodos:
+def get_params(alg, f, d, r):
+    params = {}
     try:
-        filename = 'results/params/params-' + str(desvio) + "/" + metodo + ".pkl"
-        with open(filename, "rb") as fp:
-            params[metodo] = pickle.load(fp)
+        filename = path_params + alg + "-" + f + "-" + str(d) + "-" + str(r)
+        with open(filename + "-par.pkl", "rb") as fp:
+            params = pickle.load(fp)
     except:
-        print("Parametros de " + metodo + " nao encontrados")
-        params[metodo] = {}
+        print("Parametros de " + filename + " nao encontrados")
+    
+    return params
 
-opts = {"lu": [(-100, 100)], "qtd": 15, "dim": 20, "max_avals": 100000}
+ruidos = [1, 5]
+dims = [10]
+functions = [
+    bf.zakharov_function,
+    bf.rastrigin_function
+    ]
+metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test]
+algoritmos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test"]
+labels = ["RPStau", "NMbas", "NMrst", "RPSavg", "RPStst"]
+
+# params[alg][f_name_][d][r]
+params = {
+    alg: {
+        f.__name__: {
+            d: {
+                r: get_params(alg, f.__name__, d, r)
+                for r in ruidos
+            }
+            for d in dims
+        }
+        for f in functions
+    }
+    for alg in algoritmos
+}
+
+opts = {"lu": [(-100, 100)], "qtd": 5, "max_avals": 30}
 
 qtd = opts["qtd"]
-dim = opts["dim"]
-max_avals = opts["max_avals"]
-lu = opts["lu"] * dim
+max = opts["max_avals"]
+lu = opts["lu"]
 x0s = [[(random.uniform(l, u)) for l, u in lu] for _ in range(qtd)]
 
-amostras_mets = {metodo: [] for metodo in metodos}
 
-ruido = adiciona_ruido(function, desvio=desvio)
-
-for metodo, metodo_function in zip(metodos, met_funs):
-    for x0 in x0s:
-        x, best_sols = metodo_function(ruido, x0, lu, max_avals, **params[metodo], f_original = function)
-        amostras_mets[metodo].append(best_sols)
-    amostras_mets[metodo] = np.mean(amostras_mets[metodo], axis=0)
-
-for (met, best_sols), label in zip(amostras_mets.items(), labels):
-    plt.plot(range(len(best_sols)), np.log(np.array(best_sols) + 1), label=label)
-
-plt.legend()
-plt.xlabel("Avaliações")
-plt.ylabel("Valor de objetivo")
-plt.title(function.__name__)
-filename = "results/avals/" + function.__name__
-plt.savefig(filename + ".pdf")
-plt.savefig(filename + ".png")
+for fun in functions:
+    for ruido in ruidos:
+        funruido = bf.adiciona_ruido(fun, desvio=ruido)
+        for dim in dims:
+            bounds = lu*dim
+            max_avals = max*dim
+            amostras_mets = {alg: [] for alg in algoritmos}
+            for metodo, alg in zip(metodos, algoritmos):
+                parametros = params[alg][fun.__name__][dim][ruido]
+                for x0 in x0s:
+                    x, best_sols = metodo(funruido, x0, lu, max_avals, **parametros, f_original = fun)
+                    amostras_mets[alg].append(best_sols)
+                amostras_mets[alg] = np.mean(amostras_mets[alg], axis=0)
+            for alg, label in zip(algoritmos, labels):
+                plt.plot(range(len(amostras_mets[alg])), np.log(np.array(amostras_mets[alg]) + 1), label=label)
+            plt.legend()
+            plt.xlabel("Avaliações")
+            plt.ylabel("Valor de objetivo")
+            plt.title(fun.__name__)
+            filename = path_results + fun.__name__ + "-" + str(dim) + "-" + str(ruido)
+            plt.savefig(filename + ".pdf")
+            plt.savefig(filename + ".png")
+            plt.clf()
