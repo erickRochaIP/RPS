@@ -70,13 +70,14 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
     # Criar Simplex
     S = Simplex(x0, lu)
     melhor = S.pontos[-1]
-    melhor_de_todos = melhor
+    
+    PontoAvaliacao.update_cur_best_sol(melhor)
     
     try:
         S.ordenar_simplex()
     
         pior, segundo_pior, melhor = S.extrair_dados()
-        melhor_de_todos = melhor
+        PontoAvaliacao.update_cur_best_sol(melhor)
         atual_melhor = melhor
 
         while PontoAvaliacao.get_max_avals() > PontoAvaliacao.get_avals():
@@ -84,8 +85,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
                 xlists.append(get_list(pior, segundo_pior, melhor, 0))
                 ylists.append(get_list(pior, segundo_pior, melhor, 1))
             
-            if melhor_de_todos > melhor:    # Se forem o mesmo ponto vao gastar avaliacoes
-                melhor_de_todos = melhor    # Talvez comparar de outra forma
+            PontoAvaliacao.update_cur_best_sol(melhor)
             # Se pior ponto esta muito proximo do melhor, reinicia simplex em volta do melhor
             if S.estagnou(eps_x):
                 if PontoAvaliacao.calcular_distancia(atual_melhor, melhor) < eps_x:
@@ -143,6 +143,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
     except MaxAvalsError:
         pass
     finally:
+        PontoAvaliacao.update_cur_best_sol(melhor)
         # Reset parametros
         PontoAvaliacao.reset_avals()
         PontoAvaliacao.reset_emax()
@@ -154,14 +155,16 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
         PontoAvaliacao.reset_teste()
         
         best_sols = PontoAvaliacao.get_best_sols().copy()
+        final_best_sol = PontoAvaliacao.get_cur_best_sol()
         PontoAvaliacao.reset_best_sols()
+        PontoAvaliacao.reset_cur_best_sol()
     
     if save_gif:
         get_gif(lu, xlists, ylists, titulo, f_original)
 
     if f_original is not None:
-        return melhor_de_todos, best_sols
-    return melhor_de_todos
+        return final_best_sol, best_sols
+    return final_best_sol
 
 
 def get_gif(lu, xlists, ylists, titulo, f_original=None):
@@ -172,9 +175,10 @@ def get_gif(lu, xlists, ylists, titulo, f_original=None):
     metadata = dict(title='Simplex', artist='')
     writer = PillowWriter(fps=5, metadata=metadata)
     if f_original is not None:
-        delta = 0.025
-        x = np.arange(lu[0][0], lu[0][1], delta)
-        y = np.arange(lu[1][0], lu[1][1], delta)
+        deltax = (lu[0][1] - lu[0][0]) / 400
+        deltay = (lu[0][1] - lu[0][0]) / 400
+        x = np.arange(lu[0][0], lu[0][1], deltax)
+        y = np.arange(lu[1][0], lu[1][1], deltay)
         X, Y = np.meshgrid(x, y)
         m, n = len(X), len(X[0])
         Z = [[f_original([X[i][j], Y[i][j]]) for j in range(n)] for i in range(m)]

@@ -24,6 +24,7 @@ class PontoAvaliacao:
     _alpha = 0.05
     _teste = ttest_ind
     _best_sols = []
+    _cur_best_sol = None
       
     # Acessar avals
     def get_avals():
@@ -122,6 +123,17 @@ class PontoAvaliacao:
     
     def reset_best_sols():
         PontoAvaliacao._best_sols = []
+    
+    # Acessar cur_best_sol
+    def get_cur_best_sol():
+        return PontoAvaliacao._cur_best_sol
+    
+    def update_cur_best_sol(candidate_sol):
+        if PontoAvaliacao._cur_best_sol is None or not PontoAvaliacao.naive_compare(PontoAvaliacao._cur_best_sol, candidate_sol):
+            PontoAvaliacao._cur_best_sol = candidate_sol
+    
+    def reset_cur_best_sol():
+        PontoAvaliacao._cur_best_sol = None
         
     def __init__(self, x, lu):
         self.x = x
@@ -134,7 +146,7 @@ class PontoAvaliacao:
             raise MaxAvalsError(PontoAvaliacao._avals)
         PontoAvaliacao._avals += 1
         if PontoAvaliacao._f_original is not None:
-            PontoAvaliacao.append_best_sols(min(PontoAvaliacao._f_original(x), PontoAvaliacao.get_last_best_sol()))
+            PontoAvaliacao.append_best_sols(PontoAvaliacao._f_original(PontoAvaliacao.get_cur_best_sol().x))
         return PontoAvaliacao._f(x)
 
     # Obter inviabilidade
@@ -308,6 +320,22 @@ class PontoAvaliacao:
         # Senao retorna o resultado do teste
         else:
             return H
+    
+    # Comparacao simples para a <= b
+    def naive_compare(a,b):
+        # Se os dois tem inviabilidades diferentes
+        if a.inviabilidade != b.inviabilidade:
+            return a.inviabilidade <= b.inviabilidade
+        # Se os dois sao igualmente inviaveis
+        elif a.inviabilidade != 0:
+            return True
+        # Se os dois sao viaveis
+        else:
+            if len(b.f_x) == 0:
+                return True
+            if len(a.f_x) == 0:
+                return False 
+            return np.mean(a.f_x) <= np.mean(b.f_x)
         
 
 class Simplex:
