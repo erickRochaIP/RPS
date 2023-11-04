@@ -75,10 +75,17 @@ def gerar_violin_plot(final_sols, fun, dim, ruido):
     plt.savefig(filename + ".png")
     plt.clf()
 
-ruidos = [1, 5]
+def salvar_evolucao(amostras_mets, fun, dim, ruido):
+    filename = path_results + fun.__name__ + "-" + str(dim) + "-" + str(ruido) + "-evolucao"
+    with open(filename + ".pkl", "wb") as fp:
+        pickle.dump(amostras_mets, fp)
+
+ruidos = [1, 5, 10]
 dims = [10]
 functions = [
-    bf.zakharov_function,
+    bf.high_conditioned_elliptic_function,
+    bf.rosenbrock_function,
+    bf.expanded_schaffer_function,
     bf.rastrigin_function
     ]
 metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test]
@@ -100,7 +107,7 @@ params = {
     for alg in algoritmos
 }
 
-opts = {"lu": [(-100, 100)], "qtd": 5, "max_avals": 30}
+opts = {"lu": [(-100, 100)], "qtd": 15, "max_avals": 10000}
 
 qtd = opts["qtd"]
 max = opts["max_avals"]
@@ -121,9 +128,10 @@ for fun in functions:
                 for x0 in x0s:
                     x, best_sols = metodo(funruido, x0, lu, max_avals, **parametros, f_original = fun)
                     amostras_mets[alg].append(best_sols)
-                    final_sols[alg].append(fun(x.x))
+                    final_sols[alg].append(best_sols[-1])
                 amostras_mets[alg] = np.mean(amostras_mets[alg], axis=0)
                 
             gerar_grafico_evolucao(amostras_mets, fun, dim, ruido)
             gerar_violin_plot(final_sols, fun, dim, ruido)
+            salvar_evolucao(amostras_mets, fun, dim, ruido)
             

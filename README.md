@@ -16,6 +16,6 @@ $ chmod 777 run_experiments.sh
 # Execute o script
 $ ./run_experiments.sh
 
-# Resultados armazenados em arquivos est-ruido-*.txt
-# Graficos gerados em results/
+# Parametros armazenados em results/params/experimento_oficial/
+# Graficos gerados em results/out/experimento_oficial/
 ```

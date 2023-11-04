@@ -67,10 +67,12 @@ space_rps_test = [
     Categorical(["ttest", "wilcoxon", "none"], name="teste")
 ]
 
-ruidos = [1, 5]
+ruidos = [1, 5, 10]
 dims = [10]
 functions = [
-    bf.zakharov_function,
+    bf.high_conditioned_elliptic_function,
+    bf.rosenbrock_function,
+    bf.expanded_schaffer_function,
     bf.rastrigin_function
     ]
 metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test]
@@ -84,7 +86,7 @@ for fun in functions:
         for dim in dims:
             qtd = 1
             bounds = [(-100, 100)]*dim
-            max_avals = 10*dim
+            max_avals = 1000*dim
             x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
             for space, metodo, alg in zip(spaces, metodos, algoritmos):
                 
