@@ -1,5 +1,5 @@
 # RPS
-Implementação em Python do algoritmo de otimização RPS
+Implementação em Python do algoritmo de otimização RPS.
 
 ## Como rodar os experimentos
 
