@@ -15,6 +15,7 @@ from skopt import gp_minimize
 
 import benchmark_functions as bf
 from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
+from gsa import ga
 
 np.int = np.int_
 
@@ -71,47 +72,56 @@ space_rps_test = [
     Categorical(["ttest", "wilcoxon", "none"], name="teste")
 ]
 
-ruidos = [1, 5, 10]
+space_ga = [
+    Integer(5, 100, name="pop_size"),
+    Real(0.5, 1.0, name="prob_sbx"),
+    Real(0.5, 1.0, name="prob_var_sbx"),
+    Real(0.5, 1.5, name="eta_sbx"),
+    Real(0.1, 1.0, name="prob_mut"),
+    Real(0.1, 1.0, name="eta_mut")
+]
+
+ruidos = [10]
 dims = [10]
 functions = [
     bf.zakharov_function,
-    bf.rosenbrock_function,
-    bf.expanded_schaffer_function,
-    bf.rastrigin_function,
-    bf.levy_function,
-    bf.bent_cigar_function,
-    bf.hgbat_function,
-    bf.high_conditioned_elliptic_function,
-    bf.katsuura_function,
-    bf.happycat_function,
-    bf.expanded_rosenbrocks_plus_griewangk_function,
-    bf.modified_schwefels_function,
-    bf.ackleys_function,
-    bf.discus_function,
-    bf.griewanks_function,
-    bf.schaffer_f7_function,
+    # bf.rosenbrock_function,
+    # bf.expanded_schaffer_function,
+    # bf.rastrigin_function,
+    # bf.levy_function,
+    # bf.bent_cigar_function,
+    # bf.hgbat_function,
+    # bf.high_conditioned_elliptic_function,
+    # bf.katsuura_function,
+    # bf.happycat_function,
+    # bf.expanded_rosenbrocks_plus_griewangk_function,
+    # bf.modified_schwefels_function,
+    # bf.ackleys_function,
+    # bf.discus_function,
+    # bf.griewanks_function,
+    # bf.schaffer_f7_function,
     ]
 function_labels = [
     "Zakharov",
-    "Rosenbrock",
-    "Schaffer",
-    "Rastrigin",
-    "Levy",
-    "Bent Cigar",
-    "HGBat",
-    "Elliptic",
-    "Katsuura",
-    "HappyCat",
-    "Rosenbrock+Griewangk",
-    "Schwefel",
-    "Ackley",
-    "Discus",
-    "Griewank",
-    "Schaffer",
+    # "Rosenbrock",
+    # "Schaffer",
+    # "Rastrigin",
+    # "Levy",
+    # "Bent Cigar",
+    # "HGBat",
+    # "Elliptic",
+    # "Katsuura",
+    # "HappyCat",
+    # "Rosenbrock+Griewangk",
+    # "Schwefel",
+    # "Ackley",
+    # "Discus",
+    # "Griewank",
+    # "Schaffer",
     ]
-metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test]
-algoritmos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test"]
-spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_avg, space_rps_test]
+metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, ga]
+algoritmos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "ga"]
+spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_avg, space_rps_test, space_ga]
 
 
 for fun, fun_label in zip(functions, function_labels):
@@ -120,7 +130,7 @@ for fun, fun_label in zip(functions, function_labels):
         for dim in dims:
             qtd = 5
             bounds = [(-50, 50)]*dim
-            max_avals = 100*dim
+            max_avals = 10*dim
             x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
             for space, metodo, alg in zip(spaces, metodos, algoritmos):
                 
@@ -132,7 +142,7 @@ for fun, fun_label in zip(functions, function_labels):
                         for x0 in x0s
                         ])
                 
-                res_gp = gp_minimize(eval, space, n_calls=100) #, random_state=0
+                res_gp = gp_minimize(eval, space, n_calls=10) #, random_state=0
                 params_sintonizados = {s.name: p for s, p in zip(space, res_gp.x)}
                 filename = path + alg + "-" + fun.__name__ + "-" + str(dim) + "-" + str(ruido)
                 with open(filename + "-par.pkl", "wb") as fp:

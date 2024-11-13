@@ -3,3 +3,4 @@ numpy
 scikit-optimize
 scikit-posthocs
 scipy
+pymoo
