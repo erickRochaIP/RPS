@@ -12,6 +12,7 @@ import seaborn as sns
 
 import benchmark_functions as bf
 from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
+from gsa import ga
 
 path_params = ''
 path_results = ''
@@ -120,9 +121,9 @@ function_labels = [
     "Griewank",
     "Schaffer",
     ]
-metodos = [nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps]
-algoritmos = ["nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "rps"]
-labels = ["NMbas", "NMrst", "RPSavg", "RPStst", "RPStau"]
+metodos = [nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps, ga]
+algoritmos = ["nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "rps", "ga"]
+labels = ["NMbas", "NMrst", "RPSavg", "RPStst", "RPStau", "GA"]
 
 # params[alg][f_name_][d][r]
 params = {
