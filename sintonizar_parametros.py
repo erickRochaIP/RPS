@@ -15,7 +15,7 @@ from skopt import gp_minimize
 
 import benchmark_functions as bf
 from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
-from gsa import ga
+from gsa import ga, cmaes
 
 np.int = np.int_
 
@@ -81,6 +81,18 @@ space_ga = [
     Real(0.1, 1.0, name="eta_mut")
 ]
 
+space_cmaes = [
+    Real(0.01, 2, name='sigma'),
+    Categorical([False, True], name='normalize'),
+    Integer(0, 10, name='restarts'),
+    Categorical([False, True], name='restart_from_best'),
+    Integer(1, 10, name='incpopsize'),
+    Categorical([False, True], name='eval_initial_x'),
+    Real(0.5, 2, name='noise_change_sigma_exponent'),
+    Real(0, 0.5, name='noise_kappa_exponent'),
+    Categorical([False, True], name='bipop')
+]
+
 ruidos = [10]
 dims = [10]
 functions = [
@@ -119,9 +131,9 @@ function_labels = [
     # "Griewank",
     # "Schaffer",
     ]
-metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, ga]
-algoritmos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "ga"]
-spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_avg, space_rps_test, space_ga]
+metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, ga, cmaes]
+algoritmos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "ga", "cmaes"]
+spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_avg, space_rps_test, space_ga, space_cmaes]
 
 
 for fun, fun_label in zip(functions, function_labels):

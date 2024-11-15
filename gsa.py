@@ -1,8 +1,4 @@
 from pymoo.algorithms.soo.nonconvex.ga import GA
-from pymoo.problems import get_problem
-from pymoo.optimize import minimize
-
-from pymoo.algorithms.soo.nonconvex.ga import GA
 from pymoo.algorithms.soo.nonconvex.cmaes import CMAES
 from pymoo.algorithms.soo.nonconvex.pso import PSO
 
@@ -67,7 +63,30 @@ def ga(f, x0=None, lu=None, max_avals=200,
         sampling=FloatRandomSampling(),
         crossover=SBX(prob=prob_sbx, prob_var=prob_var_sbx, eta=eta_sbx), 
         mutation=PolynomialMutation(prob=prob_mut, eta=eta_mut),
-        eliminate_duplicates=True)
+        eliminate_duplicates=True
+        )
+    return minimize(
+        problem,
+        algorithm,
+        get_termination("n_eval", max_avals),
+        verbose = False
+    ).X
+
+def cmaes(f, x0=None, lu=None, max_avals=200,
+       sigma=1, normalize=True, restarts=0, restart_from_best=True,
+       incpopsize=1, eval_initial_x=True, noise_change_sigma_exponent=1,
+       noise_kappa_exponent=0.2, bipop=True):
+    problem = ObjectiveFunction(f, len(lu), lu[0][0], lu[0][1])
+    algorithm = CMAES(x0=x0,
+                      sigma=sigma,
+                      normalize=normalize,
+                      restarts=restarts,
+                      restart_from_best=restart_from_best,
+                      incpopsize=incpopsize,
+                      eval_initial_x=eval_initial_x,
+                      noise_change_sigma_exponent=noise_change_sigma_exponent,
+                      bipop=bipop
+                      )
     return minimize(
         problem,
         algorithm,
