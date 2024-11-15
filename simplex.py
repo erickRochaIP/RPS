@@ -136,7 +136,7 @@ class PontoAvaliacao:
         PontoAvaliacao._cur_best_sol = None
         
     def __init__(self, x, lu):
-        self.x = x
+        self.X = x
         self.inviabilidade = PontoAvaliacao.obter_inviabilidade_ponto(x, lu)
         self.f_x = [] if self.inviabilidade == 0 else math.inf
     
@@ -177,7 +177,7 @@ class PontoAvaliacao:
         return norma
     
     def print_ponto(self):
-        print("x", self.x, "f(x)", self.f_x, "inviabilidade", self.inviabilidade)
+        print("x", self.X, "f(x)", self.f_x, "inviabilidade", self.inviabilidade)
     
     # Comparacoes entre pontos
     def __lt__(self, other):

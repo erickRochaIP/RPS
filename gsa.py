@@ -70,7 +70,7 @@ def ga(f, x0=None, lu=None, max_avals=200,
         algorithm,
         get_termination("n_eval", max_avals),
         verbose = False
-    ).X
+    )
 
 def cmaes(f, x0=None, lu=None, max_avals=200,
        sigma=1, normalize=True, restarts=0, restart_from_best=True,
@@ -92,7 +92,7 @@ def cmaes(f, x0=None, lu=None, max_avals=200,
         algorithm,
         get_termination("n_eval", max_avals),
         verbose = False
-    ).X
+    )
 
 def pso(f, x0=None, lu=None, max_avals=200,
         pop_size=5, w=1, c1=1, c2=1, adaptive=False,
@@ -112,6 +112,6 @@ def pso(f, x0=None, lu=None, max_avals=200,
         algorithm,
         get_termination("n_eval", max_avals),
         verbose = False
-    ).X
+    )
 
 # print(ga(rosenbrock_function, None, [(-100, 100)]*10, 500))

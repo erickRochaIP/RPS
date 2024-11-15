@@ -101,7 +101,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
             centroide = S.calcular_centroide()
             
             # Calcula ponto refletido
-            refletido = PontoAvaliacao.calcular_ponto_deslocado(pior.x, centroide, coef_reflexao)
+            refletido = PontoAvaliacao.calcular_ponto_deslocado(pior.X, centroide, coef_reflexao)
             refletido = PontoAvaliacao(refletido, lu)
             
             # Se refletido melhor que segundo pior, mas nao melhor que o melhor
@@ -112,7 +112,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
             # Se refletido melhor que o melhor
             if melhor > refletido:
                 # Calcula expandido, e adiciona o melhor ao simplex
-                expandido = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.x, coef_exp)
+                expandido = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.X, coef_exp)
                 expandido = PontoAvaliacao(expandido, lu)
                 if refletido > expandido:
                     S.substituir_pior_ponto(expandido)
@@ -122,7 +122,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
                 continue
             # Se refletido for pior que o pior
             if pior >= refletido:
-                contraido_externo = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.x, coef_contracao)
+                contraido_externo = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.X, coef_contracao)
                 contraido_externo = PontoAvaliacao(contraido_externo, lu)
                 if refletido > contraido_externo:
                     S.substituir_pior_ponto(contraido_externo)
@@ -130,7 +130,7 @@ def rps(f, x0 = None, lu = None, max_avals = 200,
                     continue
             # Se refletido esta entre pior e segundo pior
             else:
-                contraido_interno = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.x, -coef_contracao)
+                contraido_interno = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.X, -coef_contracao)
                 contraido_interno = PontoAvaliacao(contraido_interno, lu)
                 if pior > contraido_interno:
                     S.substituir_pior_ponto(contraido_interno)
@@ -194,7 +194,7 @@ def get_gif(lu, xlists, ylists, titulo, f_original=None):
             
 
 def get_list(p, s_p, m, i):
-    return [p.x[i], s_p.x[i], m.x[i], p.x[i]]
+    return [p.X[i], s_p.X[i], m.X[i], p.X[i]]
 
 def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
     if params is None:
@@ -236,8 +236,8 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
 
         with writer.saving(fig, "simplex.gif", 100):
             while PontoAvaliacao.get_max_avals() > PontoAvaliacao.get_avals():
-                xlist = [pior.x[0], segundo_pior.x[0], melhor.x[0], pior.x[0]]
-                ylist = [pior.x[1], segundo_pior.x[1], melhor.x[1], pior.x[1]]
+                xlist = [pior.X[0], segundo_pior.X[0], melhor.X[0], pior.X[0]]
+                ylist = [pior.X[1], segundo_pior.X[1], melhor.X[1], pior.X[1]]
                 l.set_data(xlist, ylist)
                 writer.grab_frame()
 
@@ -247,8 +247,8 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
                         k +=1
                     else:
                         k = 0
-                    print(melhor.x)
-                    print(f(melhor.x))
+                    print(melhor.X)
+                    print(f(melhor.X))
                     atual_melhor = melhor
                     S.gerar_novo_simplex(lu, k)
                     S.ordenar_simplex()
@@ -258,7 +258,7 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
                 centroide = S.calcular_centroide()
                 
                 # Calcula ponto refletido
-                refletido = PontoAvaliacao.calcular_ponto_deslocado(pior.x, centroide, coef_reflexao)
+                refletido = PontoAvaliacao.calcular_ponto_deslocado(pior.X, centroide, coef_reflexao)
                 refletido = PontoAvaliacao(refletido, lu)
                 
                 # Se refletido melhor que segundo pior, mas nao melhor que o melhor
@@ -269,7 +269,7 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
                 # Se refletido melhor que o melhor
                 if melhor > refletido:
                     # Calcula expandido, e adiciona o melhor ao simplex
-                    expandido = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.x, coef_exp)
+                    expandido = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.X, coef_exp)
                     expandido = PontoAvaliacao(expandido, lu)
                     if refletido > expandido:
                         S.substituir_pior_ponto(expandido)
@@ -279,7 +279,7 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
                     continue
                 # Se refletido for pior que o pior
                 if pior >= refletido:
-                    contraido_externo = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.x, coef_contracao)
+                    contraido_externo = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.X, coef_contracao)
                     contraido_externo = PontoAvaliacao(contraido_externo, lu)
                     if refletido > contraido_externo:
                         S.substituir_pior_ponto(contraido_externo)
@@ -287,7 +287,7 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
                         continue
                 # Se refletido esta entre pior e segundo pior
                 else:
-                    contraido_interno = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.x, -coef_contracao)
+                    contraido_interno = PontoAvaliacao.calcular_ponto_deslocado(centroide, refletido.X, -coef_contracao)
                     contraido_interno = PontoAvaliacao(contraido_interno, lu)
                     if pior > contraido_interno:
                         S.substituir_pior_ponto(contraido_interno)
@@ -306,6 +306,6 @@ def rps_gif(f, x0, max_avals, lu, params = None, eps_x = 0.0, emax = 5):
         PontoAvaliacao.reset_max_avals()
         PontoAvaliacao.reset_f()
 
-    print(melhor.x)
-    print(f(melhor.x))
+    print(melhor.X)
+    print(f(melhor.X))
     return melhor

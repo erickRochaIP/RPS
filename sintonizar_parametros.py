@@ -103,47 +103,47 @@ space_pso = [
     Categorical([False, True], name='pertube_best')
 ]
 
-ruidos = [10]
-dims = [10]
+ruidos = [1, 2, 5]
+dims = [10, 20, 30]
 functions = [
     bf.zakharov_function,
-    # bf.rosenbrock_function,
-    # bf.expanded_schaffer_function,
-    # bf.rastrigin_function,
-    # bf.levy_function,
-    # bf.bent_cigar_function,
-    # bf.hgbat_function,
-    # bf.high_conditioned_elliptic_function,
-    # bf.katsuura_function,
-    # bf.happycat_function,
-    # bf.expanded_rosenbrocks_plus_griewangk_function,
-    # bf.modified_schwefels_function,
-    # bf.ackleys_function,
-    # bf.discus_function,
-    # bf.griewanks_function,
-    # bf.schaffer_f7_function,
+    bf.rosenbrock_function,
+    bf.expanded_schaffer_function,
+    bf.rastrigin_function,
+    bf.levy_function,
+    bf.bent_cigar_function,
+    bf.hgbat_function,
+    bf.high_conditioned_elliptic_function,
+    bf.katsuura_function,
+    bf.happycat_function,
+    bf.expanded_rosenbrocks_plus_griewangk_function,
+    bf.modified_schwefels_function,
+    bf.ackleys_function,
+    bf.discus_function,
+    bf.griewanks_function,
+    bf.schaffer_f7_function,
     ]
 function_labels = [
     "Zakharov",
-    # "Rosenbrock",
-    # "Schaffer",
-    # "Rastrigin",
-    # "Levy",
-    # "Bent Cigar",
-    # "HGBat",
-    # "Elliptic",
-    # "Katsuura",
-    # "HappyCat",
-    # "Rosenbrock+Griewangk",
-    # "Schwefel",
-    # "Ackley",
-    # "Discus",
-    # "Griewank",
-    # "Schaffer",
+    "Rosenbrock",
+    "Schaffer",
+    "Rastrigin",
+    "Levy",
+    "Bent Cigar",
+    "HGBat",
+    "Elliptic",
+    "Katsuura",
+    "HappyCat",
+    "Rosenbrock+Griewangk",
+    "Schwefel",
+    "Ackley",
+    "Discus",
+    "Griewank",
+    "Schaffer",
     ]
-metodos = [rps, nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, ga, cmaes, pso]
-algoritmos = ["rps", "nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "ga", "cmaes", "pso"]
-spaces = [space_rps, space_nelder_mead_base, space_nelder_mead_reset, space_rps_avg, space_rps_test, space_ga, space_cmaes, space_pso]
+metodos = [rps, nelder_mead_reset, ga, cmaes, pso]
+algoritmos = ["rps", "nelder_mead_reset", "ga", "cmaes", "pso"]
+spaces = [space_rps, space_nelder_mead_reset, space_ga, space_cmaes, space_pso]
 
 
 for fun, fun_label in zip(functions, function_labels):
@@ -152,7 +152,7 @@ for fun, fun_label in zip(functions, function_labels):
         for dim in dims:
             qtd = 5
             bounds = [(-50, 50)]*dim
-            max_avals = 10*dim
+            max_avals = 100*dim
             x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
             for space, metodo, alg in zip(spaces, metodos, algoritmos):
                 
@@ -160,11 +160,11 @@ for fun, fun_label in zip(functions, function_labels):
                 def eval(**params):
                     # print(params)
                     return np.median([
-                        fun(metodo(f=funruido, x0=x0, max_avals=max_avals, lu=bounds, **params).x)
+                        fun(metodo(f=funruido, x0=x0, max_avals=max_avals, lu=bounds, **params).X)
                         for x0 in x0s
                         ])
                 
-                res_gp = gp_minimize(eval, space, n_calls=10) #, random_state=0
+                res_gp = gp_minimize(eval, space, n_calls=30) #, random_state=0
                 params_sintonizados = {s.name: p for s, p in zip(space, res_gp.x)}
                 filename = path + alg + "-" + fun.__name__ + "-" + str(dim) + "-" + str(ruido)
                 with open(filename + "-par.pkl", "wb") as fp:

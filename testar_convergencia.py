@@ -10,6 +10,9 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+import scikit_posthocs as sp
+import scipy.stats as ss
+
 import benchmark_functions as bf
 from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
 from gsa import ga, cmaes, pso
@@ -83,8 +86,26 @@ def salvar_evolucao(amostras_mets, fun, dim, ruido):
     with open(filename + ".pkl", "wb") as fp:
         pickle.dump(amostras_mets, fp)
 
-ruidos = [1, 5, 10]
-dims = [10]
+def analise_solucoes(final_sols, fun, dim, ruido):
+    data = np.array([final_sols for alg in algoritmos])
+    f = ss.friedmanchisquare(*data.T)
+    nf = sp.posthoc_nemenyi_friedman(data.T)
+
+    base_filename = path_results + fun.__name__ + "-" + str(dim) + "-" + str(ruido)
+    solucoes = base_filename + "-solucoes"
+    with open(solucoes + ".pkl", "wb") as fp:
+        pickle.dump(final_sols, fp)
+    
+    f_filename = base_filename + "-friedman"
+    with open(f_filename + ".pkl", "wb") as fp:
+        pickle.dump(f, fp)
+    
+    nf_filename = base_filename + "-nemenyi_friedman"
+    with open(nf_filename + ".pkl", "wb") as fp:
+        pickle.dump(nf, fp)
+
+ruidos = [1, 2, 5]
+dims = [10, 20, 30]
 functions = [
     bf.zakharov_function,
     bf.rosenbrock_function,
@@ -121,9 +142,9 @@ function_labels = [
     "Griewank",
     "Schaffer",
     ]
-metodos = [nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps, ga, cmaes, pso]
-algoritmos = ["nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "rps", "ga", "cmaes", "pso"]
-labels = ["NMbas", "NMrst", "RPSavg", "RPStst", "RPStau", "GA", "CMA-ES", "PSO"]
+metodos = [nelder_mead_reset, rps, ga, cmaes, pso]
+algoritmos = ["nelder_mead_reset", "rps", "ga", "cmaes", "pso"]
+labels = ["NMrst", "RPStau", "GA", "CMA-ES", "PSO"]
 
 # params[alg][f_name_][d][r]
 params = {
@@ -140,7 +161,7 @@ params = {
     for alg in algoritmos
 }
 
-opts = {"lu": [(-50, 50)], "qtd": 30, "max_avals": 10000}
+opts = {"lu": [(-50, 50)], "qtd": 15, "max_avals": 10000}
 
 qtd = opts["qtd"]
 max = opts["max_avals"]
@@ -154,16 +175,12 @@ for fun, fun_label in zip(functions, function_labels):
             bounds = lu*dim
             x0s = [[(random.uniform(l, u)) for l, u in bounds] for _ in range(qtd)]
             max_avals = max*dim
-            amostras_mets = {alg: [] for alg in algoritmos}
             final_sols = {alg: [] for alg in algoritmos}
             for metodo, alg in zip(metodos, algoritmos):
                 parametros = params[alg][fun.__name__][dim][ruido]
                 for x0 in x0s:
-                    x, best_sols = metodo(funruido, x0, bounds, max_avals, **parametros, f_original = fun)
-                    amostras_mets[alg].append(best_sols)
-                    final_sols[alg].append(best_sols[-1])
-                amostras_mets[alg] = np.median(amostras_mets[alg], axis=0)
-                
-            gerar_grafico_evolucao(amostras_mets, fun, fun_label, dim, ruido)
+                    x = metodo(funruido, x0, bounds, max_avals, **parametros).X
+                    final_sols[alg].append(fun(x))
+
             gerar_violin_plot(final_sols, fun, fun_label, dim, ruido)
-            salvar_evolucao(amostras_mets, fun, dim, ruido)
+            analise_solucoes(final_sols, fun, dim, ruido)
