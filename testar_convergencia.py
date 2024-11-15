@@ -12,7 +12,7 @@ import seaborn as sns
 
 import benchmark_functions as bf
 from rps import nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps
-from gsa import ga, cmaes
+from gsa import ga, cmaes, pso
 
 path_params = ''
 path_results = ''
@@ -121,9 +121,9 @@ function_labels = [
     "Griewank",
     "Schaffer",
     ]
-metodos = [nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps, ga, cmaes]
-algoritmos = ["nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "rps", "ga", "cmaes"]
-labels = ["NMbas", "NMrst", "RPSavg", "RPStst", "RPStau", "GA", "CMA-ES"]
+metodos = [nelder_mead_base, nelder_mead_reset, rps_avg, rps_test, rps, ga, cmaes, pso]
+algoritmos = ["nelder_mead_base", "nelder_mead_reset", "rps_avg", "rps_test", "rps", "ga", "cmaes", "pso"]
+labels = ["NMbas", "NMrst", "RPSavg", "RPStst", "RPStau", "GA", "CMA-ES", "PSO"]
 
 # params[alg][f_name_][d][r]
 params = {
@@ -167,4 +167,3 @@ for fun, fun_label in zip(functions, function_labels):
             gerar_grafico_evolucao(amostras_mets, fun, fun_label, dim, ruido)
             gerar_violin_plot(final_sols, fun, fun_label, dim, ruido)
             salvar_evolucao(amostras_mets, fun, dim, ruido)
-            

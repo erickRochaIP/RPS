@@ -94,4 +94,24 @@ def cmaes(f, x0=None, lu=None, max_avals=200,
         verbose = False
     ).X
 
+def pso(f, x0=None, lu=None, max_avals=200,
+        pop_size=5, w=1, c1=1, c2=1, adaptive=False,
+        max_velocity_rate=1, pertube_best=False):
+    problem = ObjectiveFunction(f, len(lu), lu[0][0], lu[0][1])
+    algorithm = PSO(
+        pop_size=pop_size,
+        w=w,
+        c1=c1,
+        c2=c2,
+        adaptive=adaptive,
+        max_velocity_rate=max_velocity_rate,
+        pertube_best=pertube_best
+    )
+    return minimize(
+        problem,
+        algorithm,
+        get_termination("n_eval", max_avals),
+        verbose = False
+    ).X
+
 # print(ga(rosenbrock_function, None, [(-100, 100)]*10, 500))
